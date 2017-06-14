@@ -1,19 +1,25 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      Home
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
   <!-- just a login button if not authenticated -->
-  <div *ngIf="!auth.isAuthenticated() && auth.isPlatformCordova()">
-    <button ion-button block color="primary" (click)="auth.loginForCordova()">Login</button>
+
+  <div text-center *ngIf="lauchLogin" id="loadingSpinner">
+    <ion-spinner></ion-spinner>
   </div>
 
-  <div *ngIf="!auth.isAuthenticated() && !auth.isPlatformCordova()">
-    <button ion-button block color="primary" (click)="auth.loginForWeb()">Login To Web</button>
+
+  <div *ngIf="!auth.isAuthenticated() && !lauchLogin">
+    <button ion-button block color="primary" (click)="login()">Login</button>
+  </div>
+
+  <div text-center>
+    {{errorLoginMessage}}
   </div>
 
   <!-- a card with your picture and name, plus a logout button -->
