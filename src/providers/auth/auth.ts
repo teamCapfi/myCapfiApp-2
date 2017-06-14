@@ -1,5 +1,5 @@
-import { Env } from './../../environment/environment';
-import { Platform } from 'ionic-angular';
+import { eMessages } from './../../environment/events/events.messages';
+import { Platform, Events } from 'ionic-angular';
 import { auth0Vars } from './../../environment/auth0/auth0.variables';
 import { Injectable, NgZone } from '@angular/core';
 import 'rxjs/add/operator/map';
@@ -21,8 +21,6 @@ const auth0Config = {
 };
 
 
-
-
 @Injectable()
 export class AuthProvider {
 
@@ -35,12 +33,13 @@ export class AuthProvider {
 
   auth0 = new Auth0.WebAuth(auth0Config);
 
+  client = new Auth0Cordova(auth0Config);
 
   accessToken: string;
   idToken: string;
   user: any;
 
-  constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform : Platform) {
+  constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events) {
     this.user = this.getStorageVariable('profile');
     this.idToken = this.getStorageVariable('id_token');
 
@@ -48,11 +47,6 @@ export class AuthProvider {
       console.log("Current user", user);
       this.currentUser = user;
     });
-  }
-
-  public isPlatformCordova():boolean{
-    if(Env.platform === 'cordova') return true;
-    else return false;
   }
 
   private getStorageVariable(name) {
@@ -78,47 +72,59 @@ export class AuthProvider {
     return Date.now() < expiresAt;
   }
 
-  public loginForWeb(){
+  public loginForWeb() {
 
   }
 
   public loginForCordova() {
-    const client = new Auth0Cordova(auth0Config);
+
 
     const options = {
       scope: 'openid profile offline_access'
     };
 
-    client.authorize(options, (err, authResult) => {
-      if (err) {
-        console.error("Erreur",err);
-        return;
+    this.client.authorize(options, (err, authResult) => {
+
+      try {
+        if (err) throw new Error(err);
+
+        console.log('AuthResult', authResult);
+
+        this._delegation(authResult.idToken);
+
+        this.setIdToken(authResult.idToken);
+        this.setAccessToken(authResult.accessToken);
+
+        const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
+        this.setStorageVariable('expires_at', expiresAt);
+
+        //Create the user profile by calling the Auth0 API
+        this._setUserProfile();
+
+      } catch (error) {
+
+        console.log("Error at client auth", error);
+        this.loginErrorEvent(error);
       }
+    });
+  }
 
-      this._delegation(authResult.idToken);
-
-      this.setIdToken(authResult.idToken);
-      this.setAccessToken(authResult.accessToken);
-
-      const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
-      this.setStorageVariable('expires_at', expiresAt);
-
-      // this._firebaseAuthentication(authResult.idToken);
-
+  //Create the user profile by calling the Auth0 API
+  private _setUserProfile(){
       this.auth0.client.userInfo(this.accessToken, (err, profile) => {
         if (err) {
           console.log(err);
-          this.logout();
+          this._removeStorage();
           return;
         }
 
+        console.log("Profile", profile);
         profile.user_metadata = profile.user_metadata || {};
         this.setStorageVariable('profile', profile);
         this.zone.run(() => {
           this.user = profile;
         });
       });
-    });
   }
 
   private _delegation(idToken: string) {
@@ -136,9 +142,9 @@ export class AuthProvider {
       if (error) {
         console.log(error);
         return;
-      }else{
-          this.afAuth.auth.signInWithCustomToken(result.idToken).then((data) => {
-            console.log("User data", data);
+      } else {
+        this.afAuth.auth.signInWithCustomToken(result.idToken).then((data) => {
+          console.log("User data", data);
         }).catch((err) => {
           console.log("Erreur when log in the firebase system with the delegation Token", err);
         })
@@ -146,10 +152,16 @@ export class AuthProvider {
     })
   }
 
+  public logoutEvent(){
+    this.events.publish(eMessages.USER_LOGOUT);
+  }
 
-  public logout() {
-    this.afAuth.auth.signOut().then(() => {
-      console.log("Successfully signed out");
+  public loginErrorEvent(err) {
+    this.events.publish(eMessages.USER_ERROR_LOGIN, err);
+  }
+
+
+  private _removeStorage(){
       window.localStorage.removeItem('profile');
       window.localStorage.removeItem('access_token');
       window.localStorage.removeItem('id_token');
@@ -158,11 +170,16 @@ export class AuthProvider {
       this.idToken = null;
       this.accessToken = null;
       this.user = null;
+  }
+
+  public logout() {
+    this.afAuth.auth.signOut().then(() => {
+      console.log("Successfully signed out");
+      this._removeStorage();
+      this.logoutEvent();
     }).catch((err) => {
       console.log("Error when signing out", err);
     })
 
   }
-
-
 }

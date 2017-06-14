@@ -1,4 +1,3 @@
-import { Env } from './../environment/environment';
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -15,7 +14,6 @@ export class MyApp {
     platform.ready().then((readySource) => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      this.detectPlatform(readySource);
       statusBar.styleDefault();
       splashScreen.hide();
 
@@ -27,15 +25,6 @@ export class MyApp {
     });
   }
 
-  detectPlatform(readySource){
-      switch (readySource) {
-        case 'dom':
-          Env.platform = "dom";
-        case 'cordova':
-          Env.platform = "cordova";
-        default:
-          Env.platform = "dom";;
-      }
-  }
+
 }
 
