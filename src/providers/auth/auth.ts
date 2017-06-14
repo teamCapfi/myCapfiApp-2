@@ -9,6 +9,8 @@ import Auth0Cordova from '@auth0/cordova';
 import Auth0 from 'auth0-js';
 
 
+declare var Auth0Lock: any;
+
 const auth0Config = {
   // needed for auth0
   clientID: auth0Vars.AUTH0_CLIENT_ID,
@@ -17,7 +19,7 @@ const auth0Config = {
   clientId: auth0Vars.AUTH0_CLIENT_ID,
   domain: auth0Vars.AUTH0_DOMAIN,
   callbackURL: location.href,
-  packageIdentifier: auth0Vars.PACKAGE_ID
+  packageIdentifier: auth0Vars.PACKAGE_ID,
 };
 
 
@@ -34,6 +36,20 @@ export class AuthProvider {
   auth0 = new Auth0.WebAuth(auth0Config);
 
   client = new Auth0Cordova(auth0Config);
+  public lock = new Auth0Lock(auth0Vars.AUTH0_CLIENT_ID, auth0Vars.AUTH0_DOMAIN, {
+    auth: {
+      responseType: 'token',
+      params: {
+        scope: 'openid profile offline_access',
+        device: 'my-device'
+      },
+    },
+    /*theme: {
+      logo: '../assets/icon/capfiLogo.png'
+    },*/
+    socialButtonStyle: 'small',
+    closable: false
+  });
 
   accessToken: string;
   idToken: string;
@@ -47,6 +63,23 @@ export class AuthProvider {
       console.log("Current user", user);
       this.currentUser = user;
     });
+
+    this._initLock();
+  }
+
+  //method that listens to the event of the Auth0 lock widget
+  private _initLock(): void {
+    //if authentification is a success from the Auth0 side, this event is triggered
+    this.lock.on('authenticated', (authResult) => {
+      console.log('authResult',authResult.accessToken);
+      this._auth_process(authResult);
+    });
+
+    //Event triggered when the authorization failed from the Auth0 side.
+    this.lock.on('authorization_error', (error) => {
+      console.log("Authorization error", error);
+      this.loginErrorEvent(error.error_description);
+    })
   }
 
   private getStorageVariable(name) {
@@ -68,16 +101,19 @@ export class AuthProvider {
   }
 
   public isAuthenticated() {
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-    return Date.now() < expiresAt;
+    if (this.currentUser !== undefined && this.currentUser !== null) return true
+    else return false;
   }
 
-  public loginForWeb() {
-
+  public loginForWeb(){
+    console.log('LoginWeb');
+    this.lock.show();
   }
+
 
   public loginForCordova() {
 
+    console.log('LoginCordova')
 
     const options = {
       scope: 'openid profile offline_access'
@@ -89,7 +125,18 @@ export class AuthProvider {
         if (err) throw new Error(err);
 
         console.log('AuthResult', authResult);
+        this._auth_process(authResult);
 
+      } catch (error) {
+
+        console.log("Error at client auth", error);
+        this.loginErrorEvent(error);
+      }
+    });
+  }
+
+  private _auth_process(authResult : any){
+    
         this._delegation(authResult.idToken);
 
         this.setIdToken(authResult.idToken);
@@ -101,12 +148,6 @@ export class AuthProvider {
         //Create the user profile by calling the Auth0 API
         this._setUserProfile();
 
-      } catch (error) {
-
-        console.log("Error at client auth", error);
-        this.loginErrorEvent(error);
-      }
-    });
   }
 
   //Create the user profile by calling the Auth0 API
@@ -145,6 +186,7 @@ export class AuthProvider {
       } else {
         this.afAuth.auth.signInWithCustomToken(result.idToken).then((data) => {
           console.log("User data", data);
+          this.loginEvent();
         }).catch((err) => {
           console.log("Erreur when log in the firebase system with the delegation Token", err);
         })
@@ -154,6 +196,10 @@ export class AuthProvider {
 
   public logoutEvent(){
     this.events.publish(eMessages.USER_LOGOUT);
+  }
+
+  public loginEvent(){
+    this.events.publish(eMessages.USER_LOGIN);
   }
 
   public loginErrorEvent(err) {

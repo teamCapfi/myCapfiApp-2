@@ -17,11 +17,14 @@ export class HomePage {
 
   ionViewDidLoad() {
     this.detectPlatform();
+    console.log(this.isPlatformCordova);
   }
 
   login(){
+    console.log(this.isPlatformCordova);
     this.lauchLogin = true;
-    this.isPlatformCordova ? this.auth.loginForCordova() : this.auth.loginForWeb();
+    if(this.isPlatformCordova) this.auth.loginForCordova();
+    else this.auth.loginForWeb();
   }
 
   listenToLoginEvents(){
@@ -36,6 +39,7 @@ export class HomePage {
 
   detectPlatform() {
     this.platform.ready().then((readySource) => {
+      console.log(readySource);
       switch (readySource) {
         case 'dom':
           this.isPlatformCordova = false;
@@ -43,11 +47,8 @@ export class HomePage {
         case 'cordova':
           this.isPlatformCordova = true;
           break;
-        default:
-          this.isPlatformCordova = false;
-          break;
       }
-    });
+    })
   }
 
 }
