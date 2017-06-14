@@ -106,14 +106,11 @@ export class AuthProvider {
   }
 
   public loginForWeb(){
-    console.log('LoginWeb');
     this.lock.show();
   }
 
 
   public loginForCordova() {
-
-    console.log('LoginCordova')
 
     const options = {
       scope: 'openid profile offline_access'
@@ -123,8 +120,6 @@ export class AuthProvider {
 
       try {
         if (err) throw new Error(err);
-
-        console.log('AuthResult', authResult);
         this._auth_process(authResult);
 
       } catch (error) {
