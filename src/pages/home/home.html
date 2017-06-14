@@ -8,11 +8,11 @@
 
 <ion-content padding>
   <!-- just a login button if not authenticated -->
-  <div *ngIf="!auth.isAuthenticated() && auth.isPlatformCordova()">
+  <div *ngIf="!auth.isAuthenticated() && isPlatformCordova">
     <button ion-button block color="primary" (click)="auth.loginForCordova()">Login</button>
   </div>
 
-  <div *ngIf="!auth.isAuthenticated() && !auth.isPlatformCordova()">
+  <div *ngIf="!auth.isAuthenticated() && !isPlatformCordova">
     <button ion-button block color="primary" (click)="auth.loginForWeb()">Login To Web</button>
   </div>
 
