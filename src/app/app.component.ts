@@ -18,9 +18,7 @@ export class MyApp {
       splashScreen.hide();
 
     (<any>window).handleOpenURL = (url) => {
-      (<any>window).setTimeout(function () {
         Auth0Cordova.onRedirectUri(url);
-      }, 100);
     };
     });
   }

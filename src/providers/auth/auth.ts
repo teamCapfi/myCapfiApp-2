@@ -1,10 +1,11 @@
+import { UserProvider } from './../user/user';
+import { User } from './../interfaces/user.model';
 import { eMessages } from './../../environment/events/events.messages';
 import { Platform, Events } from 'ionic-angular';
 import { auth0Vars } from './../../environment/auth0/auth0.variables';
 import { Injectable, NgZone } from '@angular/core';
 import 'rxjs/add/operator/map';
 import { AngularFireAuth } from 'angularfire2/auth';
-import * as firebase from 'firebase/app';
 import Auth0Cordova from '@auth0/cordova';
 import Auth0 from 'auth0-js';
 
@@ -26,7 +27,6 @@ const auth0Config = {
 @Injectable()
 export class AuthProvider {
 
-  private currentUser: firebase.User;
 
   auth0Authentication = new Auth0.Authentication({
     clientID: auth0Vars.AUTH0_CLIENT_ID,
@@ -35,7 +35,6 @@ export class AuthProvider {
 
   auth0 = new Auth0.WebAuth(auth0Config);
 
-  client = new Auth0Cordova(auth0Config);
   public lock = new Auth0Lock(auth0Vars.AUTH0_CLIENT_ID, auth0Vars.AUTH0_DOMAIN, {
     auth: {
       responseType: 'token',
@@ -51,17 +50,14 @@ export class AuthProvider {
     closable: false
   });
 
-  accessToken: string;
-  idToken: string;
-  user: any;
+  private accessToken: string;
+  private idToken: string;
+  isPlatformCordova: boolean = false;
+  isLoggedIn: boolean = false;
 
-  constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events) {
-    this.user = this.getStorageVariable('profile');
-    this.idToken = this.getStorageVariable('id_token');
-
-    afAuth.auth.onAuthStateChanged((user) => {
-      console.log("Current user", user);
-      this.currentUser = user;
+  constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events, private _myUser: UserProvider) {
+    this.detectPlatform().then(() => {
+      this.isAlreadyLoggedIn();
     });
 
     this._initLock();
@@ -71,7 +67,7 @@ export class AuthProvider {
   private _initLock(): void {
     //if authentification is a success from the Auth0 side, this event is triggered
     this.lock.on('authenticated', (authResult) => {
-      console.log('authResult',authResult.accessToken);
+      console.log('authenticated');
       this._auth_process(authResult);
     });
 
@@ -100,23 +96,55 @@ export class AuthProvider {
     this.setStorageVariable('access_token', token);
   }
 
-  public isAuthenticated() {
-    if (this.currentUser !== undefined && this.currentUser !== null) return true
+  public isAuthenticated(): boolean {
+    if (this.isLoggedIn) return true;
     else return false;
   }
 
-  public loginForWeb(){
+  public detectPlatform() {
+    return this.platform.ready().then((readySource) => {
+      switch (readySource) {
+        case 'dom':
+          this.isPlatformCordova = false;
+          break;
+        case 'cordova':
+          this.isPlatformCordova = true;
+          break;
+      }
+    })
+  }
+
+  isAlreadyLoggedIn(): void {
+    let user: User;
+    user = this.getStorageVariable('profile');
+    this.idToken = this.getStorageVariable('id_token');
+    this.accessToken = this.getStorageVariable('access_token');
+    if (user && this.idToken && this.accessToken) {
+      this._myUser.user = user;
+      this.isLoggedIn = true;
+    }
+    else {
+      this.isLoggedIn = false;
+    }
+  }
+
+  public loginForWeb() {
     this.lock.show();
   }
 
+  public login() {
+    this.isPlatformCordova ? this.loginForCordova() : this.loginForWeb();
+  }
 
   public loginForCordova() {
+
+    let client = new Auth0Cordova(auth0Config);
 
     const options = {
       scope: 'openid profile offline_access'
     };
 
-    this.client.authorize(options, (err, authResult) => {
+    client.authorize(options, (err, authResult) => {
 
       try {
         if (err) throw new Error(err);
@@ -130,40 +158,22 @@ export class AuthProvider {
     });
   }
 
-  private _auth_process(authResult : any){
-    
-        this._delegation(authResult.idToken);
+  private _auth_process(authResult: any) {
 
-        this.setIdToken(authResult.idToken);
-        this.setAccessToken(authResult.accessToken);
+    console.log('AuthProcess');
+    this._delegation(authResult.idToken);
 
-        const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
-        this.setStorageVariable('expires_at', expiresAt);
-
-        //Create the user profile by calling the Auth0 API
-        this._setUserProfile();
+    this.setIdToken(authResult.idToken);
+    this.setAccessToken(authResult.accessToken);
+    //Create the user profile by calling the Auth0 API
+    this._setUserProfileAfterLogin();
 
   }
 
-  //Create the user profile by calling the Auth0 API
-  private _setUserProfile(){
-      this.auth0.client.userInfo(this.accessToken, (err, profile) => {
-        if (err) {
-          console.log(err);
-          this._removeStorage();
-          return;
-        }
-
-        console.log("Profile", profile);
-        profile.user_metadata = profile.user_metadata || {};
-        this.setStorageVariable('profile', profile);
-        this.zone.run(() => {
-          this.user = profile;
-        });
-      });
-  }
-
+  
   private _delegation(idToken: string) {
+
+    console.log("delegation");
     const options = {
       id_token: idToken,
       clientID: auth0Vars.AUTH0_CLIENT_ID,
@@ -174,14 +184,13 @@ export class AuthProvider {
     };
 
     this.auth0Authentication.delegation(options, (error, result) => {
-      console.log("Result delegation", result);
       if (error) {
         console.log(error);
         return;
       } else {
+        console.log("Delegation Success")
         this.afAuth.auth.signInWithCustomToken(result.idToken).then((data) => {
-          console.log("User data", data);
-          this.loginEvent();
+          console.log("SigninFirebase");
         }).catch((err) => {
           console.log("Erreur when log in the firebase system with the delegation Token", err);
         })
@@ -189,11 +198,40 @@ export class AuthProvider {
     })
   }
 
-  public logoutEvent(){
+  //Create the user profile by calling the Auth0 API
+  private _setUserProfileAfterLogin() {
+    this.auth0.client.userInfo(this.accessToken, (err, profile) => {
+      if (err) {
+        console.log(err);
+        this._removeStorage();
+        return;
+      }
+
+      console.log("GetUserProfile");
+      let newUser: User = {
+        name: profile.name,
+        email: profile.email,
+        key: profile.identities[0].user_id,
+        family_name: profile.family_name || "",
+        given_name: profile.given_name || "",
+        photo: profile.picture
+      }
+
+      this._myUser.user = newUser;
+      this.loginEvent();
+      this.setStorageVariable('profile', newUser);
+
+    });
+  }
+
+
+  public logoutEvent() {
+    this.isLoggedIn = false;
     this.events.publish(eMessages.USER_LOGOUT);
   }
 
-  public loginEvent(){
+  public loginEvent() {
+    this.isLoggedIn = true;
     this.events.publish(eMessages.USER_LOGIN);
   }
 
@@ -201,16 +239,13 @@ export class AuthProvider {
     this.events.publish(eMessages.USER_ERROR_LOGIN, err);
   }
 
+  private _removeStorage() {
+    window.localStorage.removeItem('profile');
+    window.localStorage.removeItem('access_token');
+    window.localStorage.removeItem('id_token');
 
-  private _removeStorage(){
-      window.localStorage.removeItem('profile');
-      window.localStorage.removeItem('access_token');
-      window.localStorage.removeItem('id_token');
-      window.localStorage.removeItem('expires_at');
-
-      this.idToken = null;
-      this.accessToken = null;
-      this.user = null;
+    this.idToken = null;
+    this.accessToken = null;
   }
 
   public logout() {
