@@ -65,6 +65,7 @@ export class AuthProvider {
 
   //method that listens to the event of the Auth0 lock widget
   private _initLock(): void {
+    console.log('Init lock');
     //if authentification is a success from the Auth0 side, this event is triggered
     this.lock.on('authenticated', (authResult) => {
       console.log('authenticated');
@@ -129,6 +130,7 @@ export class AuthProvider {
   }
 
   public loginForWeb() {
+    console.log('Login For Web');
     this.lock.show();
   }
 
@@ -160,13 +162,14 @@ export class AuthProvider {
 
   private _auth_process(authResult: any) {
 
-    console.log('AuthProcess');
+    console.log('AuthProcess',authResult);
     this._delegation(authResult.idToken);
 
     this.setIdToken(authResult.idToken);
     this.setAccessToken(authResult.accessToken);
     //Create the user profile by calling the Auth0 API
-    this._setUserProfileAfterLogin();
+    this.isPlatformCordova ?  this._setUserProfileAfterLoginForCordova() : this._setUserProfileAfterLogin(authResult.idTokenPayload);
+    
 
   }
 
@@ -198,30 +201,33 @@ export class AuthProvider {
     })
   }
 
+  private _setUserProfileAfterLoginForCordova(){
+      this.auth0.client.userInfo(this.accessToken, (err, profile) => {
+        if(err) {
+          throw err;
+        }
+
+        profile.user_metadata = profile.user_metadata || {};
+        this.setStorageVariable('profile', profile);
+        this.zone.run(() => {
+          this._setUserProfileAfterLogin(profile);
+        });
+      });
+  }
+
   //Create the user profile by calling the Auth0 API
-  private _setUserProfileAfterLogin() {
-    this.auth0.client.userInfo(this.accessToken, (err, profile) => {
-      if (err) {
-        console.log(err);
-        this._removeStorage();
-        return;
+  private _setUserProfileAfterLogin(userInfo : any) {
+    let newUser: User = {
+        name: userInfo.name,
+        email: userInfo.email,
+        key: userInfo.identities[0].user_id,
+        family_name: userInfo.family_name || "",
+        given_name: userInfo.given_name || "",
+        photo: userInfo.picture
       }
-
-      console.log("GetUserProfile");
-      let newUser: User = {
-        name: profile.name,
-        email: profile.email,
-        key: profile.identities[0].user_id,
-        family_name: profile.family_name || "",
-        given_name: profile.given_name || "",
-        photo: profile.picture
-      }
-
       this._myUser.user = newUser;
-      this.loginEvent();
       this.setStorageVariable('profile', newUser);
-
-    });
+      this.loginEvent();
   }
 
 
