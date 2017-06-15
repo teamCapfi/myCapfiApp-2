@@ -1,0 +1,12 @@
+<ion-content padding>
+  <div text-center *ngIf="launchLoadingprocess">
+    <ion-spinner></ion-spinner>
+  </div>
+  <div text-center id="login_button_container">
+    <button ion-button  block color="primary" (click)="login()" [hidden]="launchLoadingprocess">Je me connecte</button>
+  </div>
+
+  <div text-center>
+    {{errorLoginMessage}}
+  </div>
+</ion-content>

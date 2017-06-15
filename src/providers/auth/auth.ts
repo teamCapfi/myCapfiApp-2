@@ -53,11 +53,10 @@ export class AuthProvider {
   private accessToken: string;
   private idToken: string;
   isPlatformCordova: boolean = false;
-  isLoggedIn: boolean = false;
 
   constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events, private _myUser: UserProvider) {
     this.detectPlatform().then(() => {
-      this.isAlreadyLoggedIn();
+      this.isLoggedIn();
     });
 
     this._initLock();
@@ -65,7 +64,6 @@ export class AuthProvider {
 
   //method that listens to the event of the Auth0 lock widget
   private _initLock(): void {
-    console.log('Init lock');
     //if authentification is a success from the Auth0 side, this event is triggered
     this.lock.on('authenticated', (authResult) => {
       console.log('authenticated');
@@ -97,10 +95,6 @@ export class AuthProvider {
     this.setStorageVariable('access_token', token);
   }
 
-  public isAuthenticated(): boolean {
-    if (this.isLoggedIn) return true;
-    else return false;
-  }
 
   public detectPlatform() {
     return this.platform.ready().then((readySource) => {
@@ -115,17 +109,19 @@ export class AuthProvider {
     })
   }
 
-  isAlreadyLoggedIn(): void {
-    let user: User;
-    user = this.getStorageVariable('profile');
+  isLoggedIn(): boolean {
+    let user : User = this.getStorageVariable('profile');
     this.idToken = this.getStorageVariable('id_token');
     this.accessToken = this.getStorageVariable('access_token');
+
     if (user && this.idToken && this.accessToken) {
-      this._myUser.user = user;
-      this.isLoggedIn = true;
+      this._myUser.infos = user;
+      console.log('isLoggedIn');
+      return true;
     }
     else {
-      this.isLoggedIn = false;
+      console.log('Not LoggedIn');
+      return false;
     }
   }
 
@@ -147,13 +143,10 @@ export class AuthProvider {
     };
 
     client.authorize(options, (err, authResult) => {
-
       try {
         if (err) throw new Error(err);
         this._auth_process(authResult);
-
       } catch (error) {
-
         console.log("Error at client auth", error);
         this.loginErrorEvent(error);
       }
@@ -170,7 +163,6 @@ export class AuthProvider {
     //Create the user profile by calling the Auth0 API
     this.isPlatformCordova ?  this._setUserProfileAfterLoginForCordova() : this._setUserProfileAfterLogin(authResult.idTokenPayload);
     
-
   }
 
   
@@ -225,20 +217,21 @@ export class AuthProvider {
         given_name: userInfo.given_name || "",
         photo: userInfo.picture
       }
-      this._myUser.user = newUser;
+      this._myUser.infos = newUser;
       this.setStorageVariable('profile', newUser);
       this.loginEvent();
   }
 
 
   public logoutEvent() {
-    this.isLoggedIn = false;
     this.events.publish(eMessages.USER_LOGOUT);
   }
 
   public loginEvent() {
-    this.isLoggedIn = true;
-    this.events.publish(eMessages.USER_LOGIN);
+    console.log('In loginEvents');
+    this.zone.run(()=>{
+      this.events.publish(eMessages.USER_LOGIN);
+    })
   }
 
   public loginErrorEvent(err) {

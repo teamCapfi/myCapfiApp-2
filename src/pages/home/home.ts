@@ -1,9 +1,10 @@
-import { UserProvider } from './../../providers/user/user';
 import { eMessages } from './../../environment/events/events.messages';
+import { UserProvider } from './../../providers/user/user';
 import { AuthProvider } from './../../providers/auth/auth';
 import { Component } from '@angular/core';
-import { NavController, Platform, Events } from 'ionic-angular';
+import { NavController, Platform, Events, IonicPage } from 'ionic-angular';
 
+@IonicPage()
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -11,31 +12,19 @@ import { NavController, Platform, Events } from 'ionic-angular';
 export class HomePage {
   lauchLogin : boolean = false;
   errorLoginMessage : string = "";
-  isAuthenticated : boolean = false;
   constructor(public navCtrl: NavController, public auth: AuthProvider, public platform: Platform, public events : Events, public myUser : UserProvider) {
-    this.listenToLoginEvents();
+    this.listenToEvents()
   }
 
-  login(){
-    console.log('Launch login process..');
-    this.errorLoginMessage = "";
-    this.auth.login();
+
+  logout(){
+      this.auth.logout();
   }
 
-  listenToLoginEvents(){
-    this.events.subscribe(eMessages.USER_LOGIN, ()=>{
-      console.log('Bienvenue', this.myUser.user.name);
-      this.isAuthenticated = this.auth.isAuthenticated();
-      console.log("isAuth",this.isAuthenticated);
-    });
-    this.events.subscribe(eMessages.USER_ERROR_LOGIN, (err)=>{
-      this.errorLoginMessage = err;
-      this.isAuthenticated = false;
-    });
+  listenToEvents(){
     this.events.subscribe(eMessages.USER_LOGOUT, ()=>{
-      this.isAuthenticated = false;
+      this.navCtrl.setRoot('LoginPage');
     })
   }
-
 
 }

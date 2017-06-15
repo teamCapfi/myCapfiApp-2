@@ -5,18 +5,18 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class UserProvider {
 
-  private _user : User;
+  private _infos : User;
 
   constructor() {
     
   }
 
-  get user():User{
-    return this._user;
+  get infos():User{
+    return this._infos;
   }
 
-  set user(new_user : User){
-   this._user = {
+  set infos(new_user : User){
+   this._infos = {
       name : new_user.name,
       email : new_user.email,
       key : new_user.key,
@@ -27,7 +27,7 @@ export class UserProvider {
   }
 
   set key(new_key : string){
-    this._user.key = new_key;
+    this._infos.key = new_key;
   }
 
 

@@ -7,30 +7,16 @@
 </ion-header>
 
 <ion-content padding>
-  <!-- just a login button if not authenticated -->
-
-  <div *ngIf="!isAuthenticated">
-    <button ion-button block color="primary" (click)="login()">Je me connecte</button>
-  </div>
-
-  <div text-center>
-    {{errorLoginMessage}}
-  </div>
-
-  <div text-center>
-    Bienvenue dans notre application
-  </div>
-
   <!-- a card with your picture and name, plus a logout button -->
-  <div *ngIf="isAuthenticated">
+  <div *ngIf="myUser.infos">
     <ion-item>
       <ion-avatar item-start>
-        <img [src]="myUser.user.photo">
+        <img [src]="myUser.infos.photo">
       </ion-avatar>
-      <h2>{{ myUser.user.name}}</h2>
-      <p>{{myUser.user.email}}</p>
+      <h2>{{ myUser.infos.name}}</h2>
+      <p>{{myUser.infos.email}}</p>
     </ion-item>
 
-    <button ion-button block color="primary" (click)="auth.logout()">Logout</button>
+    <button ion-button block color="primary" (click)="logout()">Logout</button>
   </div>
 </ion-content>
