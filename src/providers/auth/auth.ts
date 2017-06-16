@@ -55,9 +55,7 @@ export class AuthProvider {
   isPlatformCordova: boolean = false;
 
   constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events, private _myUser: UserProvider) {
-    this.detectPlatform().then(() => {
-      this.isLoggedIn();
-    });
+    this.detectPlatform();
 
     this._initLock();
   }
