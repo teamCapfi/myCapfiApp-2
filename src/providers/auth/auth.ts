@@ -64,7 +64,6 @@ export class AuthProvider {
   private _initLock(): void {
     //if authentification is a success from the Auth0 side, this event is triggered
     this.lock.on('authenticated', (authResult) => {
-      console.log('authenticated');
       this._auth_process(authResult);
     });
 
@@ -145,6 +144,7 @@ export class AuthProvider {
           this._auth_process(authResult);
         } catch (error) {
           console.log("Error at client auth", error);
+          error = "Ce compte n'est pas autorisé";
           this.loginErrorEvent(error);
         }
       });
@@ -152,20 +152,19 @@ export class AuthProvider {
 
   private _auth_process(authResult: any) {
 
-    console.log('AuthProcess',authResult);
-    this._delegation(authResult.idToken);
-
-    this.setIdToken(authResult.idToken);
-    this.setAccessToken(authResult.accessToken);
-    //Create the user profile by calling the Auth0 API
-    this.isPlatformCordova ?  this._setUserProfileAfterLoginForCordova() : this._setUserProfileAfterLogin(authResult.idTokenPayload);
-    
+    this._delegation(authResult.idToken).then(()=>{
+        this.setIdToken(authResult.idToken);
+        this.setAccessToken(authResult.accessToken);
+        //Create the user profile by calling the Auth0 API
+        this.isPlatformCordova ?  this._getUserProfile() : this._setUserProfileAfterLogin(authResult.idTokenPayload);
+    }).catch((err)=>{
+      this.loginErrorEvent(err);
+    });
   }
 
   
-  private _delegation(idToken: string) {
+  private _delegation(idToken: string):Promise<any> {
 
-    console.log("delegation");
     const options = {
       id_token: idToken,
       clientID: auth0Vars.AUTH0_CLIENT_ID,
@@ -174,23 +173,28 @@ export class AuthProvider {
       target: auth0Vars.AUTH0_CLIENT_ID,
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer'
     };
-
-    this.auth0Authentication.delegation(options, (error, result) => {
-      if (error) {
-        console.log(error);
-        return;
-      } else {
-        console.log("Delegation Success")
-        this.afAuth.auth.signInWithCustomToken(result.idToken).then((data) => {
-          console.log("SigninFirebase");
-        }).catch((err) => {
-          console.log("Erreur when log in the firebase system with the delegation Token", err);
-        })
-      }
+    return new Promise((resolve,reject)=>{
+      this.auth0Authentication.delegation(options, (error, result) => {
+        if (error) {
+          if(error.status == 400) error = "Oops, problème de connexion, veuillez réessayer svp"
+          reject(error);
+        } else {
+          console.log("Delegation Success");
+          this.afAuth.auth.signInWithCustomToken(result.idToken).then((data) => {
+            console.log("SigninFirebase");
+            resolve();
+          }).catch((err) => {
+            console.log("Erreur when log in the firebase system with the delegation Token", err);
+            reject(err);
+          })
+        }
+      });
     })
+
+
   }
 
-  private _setUserProfileAfterLoginForCordova(){
+  private _getUserProfile(){
       this.auth0.client.userInfo(this.accessToken, (err, profile) => {
         if(err) {
           throw err;
