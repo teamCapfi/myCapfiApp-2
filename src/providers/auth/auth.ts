@@ -158,6 +158,7 @@ export class AuthProvider {
         //Create the user profile by calling the Auth0 API
         this.isPlatformCordova ?  this._getUserProfile() : this._setUserProfileAfterLogin(authResult.idTokenPayload);
     }).catch((err)=>{
+      console.log("Delegation Error", err);
       this.loginErrorEvent(err);
     });
   }
@@ -176,7 +177,7 @@ export class AuthProvider {
     return new Promise((resolve,reject)=>{
       this.auth0Authentication.delegation(options, (error, result) => {
         if (error) {
-          if(error.status == 400) error = "Oops, problème de connexion, veuillez réessayer svp"
+          error = "Oops, problème de connexion, veuillez réessayer svp";
           reject(error);
         } else {
           console.log("Delegation Success");

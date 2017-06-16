@@ -1,5 +1,4 @@
 import { UserProvider } from './../../providers/user/user';
-import { eMessages } from './../../environment/events/events.messages';
 import { AuthProvider } from './../../providers/auth/auth';
 import { Component } from '@angular/core';
 import { IonicPage, NavController, Events, NavParams } from 'ionic-angular';
@@ -24,6 +23,10 @@ export class LoginPage {
     this.launchLoadingprocess = true;
     this.errorLoginMessage = "";
     this.auth.login();
+  }
+
+  stopLogin(){
+    this.launchLoadingprocess = false;
   }
 
 

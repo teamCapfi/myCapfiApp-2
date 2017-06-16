@@ -1,12 +1,20 @@
 <ion-content padding>
-  <div  id="spinner" text-center *ngIf="launchLoadingprocess">
+  <div id="spinner" text-center *ngIf="launchLoadingprocess">
     <ion-spinner></ion-spinner>
   </div>
   <div text-center id="login_button_container">
-    <button ion-button  block color="primary" (click)="login()" [hidden]="launchLoadingprocess">Je me connecte</button>
+    <button ion-button block color="primary" (click)="login()" [hidden]="launchLoadingprocess">Je me connecte</button>
   </div>
 
-  <div text-center>
+  <div text-center margin-top>
     {{errorLoginMessage}}
   </div>
 </ion-content>
+
+<ion-footer *ngIf="launchLoadingprocess">
+  <ion-toolbar>
+    <div text-center>
+      <button (click)="stopLogin()" ion-button outline round color="light"><ion-icon name="close"></ion-icon></button>
+    </div>
+  </ion-toolbar>
+</ion-footer>
