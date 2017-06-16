@@ -139,16 +139,15 @@ export class AuthProvider {
     const options = {
       scope: 'openid profile offline_access'
     };
-
-    client.authorize(options, (err, authResult) => {
-      try {
-        if (err) throw new Error(err);
-        this._auth_process(authResult);
-      } catch (error) {
-        console.log("Error at client auth", error);
-        this.loginErrorEvent(error);
-      }
-    });
+      client.authorize(options, (err, authResult) => {
+        try {
+          if (err) throw new Error(err);
+          this._auth_process(authResult);
+        } catch (error) {
+          console.log("Error at client auth", error);
+          this.loginErrorEvent(error);
+        }
+      });
   }
 
   private _auth_process(authResult: any) {

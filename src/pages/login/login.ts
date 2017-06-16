@@ -26,9 +26,6 @@ export class LoginPage {
   }
 
   listenToLoginEvents(){
-    this.events.subscribe(eMessages.USER_LOGIN, ()=>{
-      this.navCtrl.setRoot('HomePage');
-    });
     this.events.subscribe(eMessages.USER_ERROR_LOGIN, (err)=>{
       this.errorLoginMessage = err;
       this.launchLoadingprocess = false;
