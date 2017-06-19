@@ -3,8 +3,11 @@ export interface User {
     family_name ?: string,
     given_name ?: string,
     phoneNumber ?: string,
+    jobTitle ?: string,
     email: string,
     photo: string,
     status ?: string,
-    key: string
+    key: string,
+    isManager ?: boolean,
+    compagny ?: string
 }

@@ -23,9 +23,7 @@ import { UserProvider } from '../providers/user/user';
     AngularFireDatabaseModule
   ],
   bootstrap: [IonicApp],
-  entryComponents: [
-    MyApp
-  ],
+  entryComponents: [ MyApp ],
   providers: [
     StatusBar,
     SplashScreen,

@@ -15,14 +15,17 @@ export class UserProvider {
     return this._infos;
   }
 
-  set infos(new_user : User){
+  set infos(new_user: User){
    this._infos = {
-      name : new_user.name,
-      email : new_user.email,
-      key : new_user.key,
-      family_name : new_user.family_name,
-      given_name : new_user.given_name,
-      photo : new_user.photo
+      name: new_user.name,
+      email: new_user.email,
+      key: new_user.key,
+      phoneNumber: "0615032255",
+      family_name: new_user.family_name,
+      given_name: new_user.given_name,
+      photo: new_user.photo,
+      jobTitle: "Developer",
+      compagny: "Capfi"
    }
   }
 

@@ -11,13 +11,12 @@ import { IonicPage, NavController, Events } from 'ionic-angular';
   templateUrl: 'login.html',
 })
 export class LoginPage {
-
   errorLoginMessage : string = "";
   launchLoadingprocess : boolean = false;
+  
   constructor(public navCtrl: NavController, public auth : AuthProvider, public events : Events, public myUser : UserProvider) {
     this.listenToLoginEvents();
   }
-
 
   login(){
     this.launchLoadingprocess = true;

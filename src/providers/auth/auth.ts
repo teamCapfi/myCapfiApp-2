@@ -12,6 +12,18 @@ import Auth0 from 'auth0-js';
 
 declare var Auth0Lock: any;
 
+const options = {
+  auth: {
+      responseType: 'token',
+      params: {
+        scope: 'openid profile offline_access',
+        device: 'my-device',
+        prompt: "select_account"
+      },
+  },
+  socialButtonStyle: 'small',
+  closable: false
+}
 const auth0Config = {
   // needed for auth0
   clientID: auth0Vars.AUTH0_CLIENT_ID,
@@ -20,14 +32,12 @@ const auth0Config = {
   clientId: auth0Vars.AUTH0_CLIENT_ID,
   domain: auth0Vars.AUTH0_DOMAIN,
   callbackURL: location.href,
-  packageIdentifier: auth0Vars.PACKAGE_ID,
+  packageIdentifier: auth0Vars.PACKAGE_ID
 };
 
 
 @Injectable()
 export class AuthProvider {
-
-
   auth0Authentication = new Auth0.Authentication({
     clientID: auth0Vars.AUTH0_CLIENT_ID,
     domain: auth0Vars.AUTH0_DOMAIN,
@@ -35,20 +45,7 @@ export class AuthProvider {
 
   auth0 = new Auth0.WebAuth(auth0Config);
 
-  public lock = new Auth0Lock(auth0Vars.AUTH0_CLIENT_ID, auth0Vars.AUTH0_DOMAIN, {
-    auth: {
-      responseType: 'token',
-      params: {
-        scope: 'openid profile offline_access',
-        device: 'my-device'
-      },
-    },
-    /*theme: {
-      logo: '../assets/icon/capfiLogo.png'
-    },*/
-    socialButtonStyle: 'small',
-    closable: false
-  });
+  public lock = new Auth0Lock(auth0Vars.AUTH0_CLIENT_ID, auth0Vars.AUTH0_DOMAIN, options);
 
   private accessToken: string;
   private idToken: string;
@@ -164,9 +161,8 @@ export class AuthProvider {
 
   
   private _delegation(idToken: string) {
-
     console.log("delegation");
-    const options = {
+    const options_delegation = {
       id_token: idToken,
       clientID: auth0Vars.AUTH0_CLIENT_ID,
       api: 'firebase',
@@ -175,7 +171,7 @@ export class AuthProvider {
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer'
     };
 
-    this.auth0Authentication.delegation(options, (error, result) => {
+    this.auth0Authentication.delegation(options_delegation, (error, result) => {
       if (error) {
         console.log(error);
         return;

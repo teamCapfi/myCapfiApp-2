@@ -14,7 +14,6 @@ export class HomePage {
   constructor(public navCtrl: NavController, public auth: AuthProvider, public platform: Platform, public events : Events, public myUser : UserProvider) {
   }
 
-
   logout(){
       this.auth.logout();
   }
