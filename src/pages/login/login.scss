@@ -2,4 +2,16 @@ page-login {
     #login_button_container {
         margin-top: 70%;
     }
+
+   div #spinner {
+       margin-top : 60%;
+        ion-spinner{
+            width: 85px;
+            height : 85px;
+        }
+    }
+
+    #close_spinner{
+        
+    }
 }

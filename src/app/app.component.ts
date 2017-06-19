@@ -37,7 +37,12 @@ export class MyApp {
     });
     this.events.subscribe(eMessages.USER_LOGOUT, ()=>{
       this.nav.setRoot('LoginPage');
-    })
+    });
+    this.events.subscribe(eMessages.USER_ERROR_LOGIN, (err)=>{
+        this.nav.setRoot('LoginPage', {
+          errorLogin : err
+        });
+    });
   }
 }
 

@@ -1,0 +1,11 @@
+page-edit-profile {
+    #edit-profile-header::after {
+        background-image: none;
+    }
+
+    div .edit-profile-picture img{
+            border-radius: 50%;
+            width : 85px;
+            height : 85px;
+    }
+}
