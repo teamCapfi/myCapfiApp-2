@@ -1,0 +1,53 @@
+<ion-header id="edit-profile-header">
+  <ion-buttons start>
+    <button ion-button clear icon-only (click)="viewCtrl.dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </button>
+  </ion-buttons>
+</ion-header>
+
+
+<ion-content>
+  <div text-center class="edit-profile-picture">
+    <img [src]="myUser.infos.photo">
+    <p padding-top text-capitalize>{{myUser.infos.name}}</p>
+    <p>{{myUser.infos.email}}</p>
+  </div>
+  <form [formGroup]="editForm" (ngSubmit)="onSubmit()" novalidate>
+    <ion-list class="edit-profile-form-list">
+      <ion-item>
+        <ion-label floating> Titre du Poste</ion-label>
+        <ion-input formControlName="jobTitle"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Statut</ion-label>
+        <ion-select formControlName="statut">
+          <ion-option value="En mission" selected="true">En mission</ion-option>
+          <ion-option value="En congés">En congés</ion-option>
+          <ion-option value="En inter-contrats">En inter-contrats</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label fixed>Tel</ion-label>
+        <ion-input type="tel" formControlName="tel"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Je suis Manager</ion-label>
+        <ion-toggle value="isManager" formControlName="isManager"></ion-toggle>
+      </ion-item>
+    </ion-list>
+    <p>{{editForm.value | json }}</p>
+  </form>
+  <ion-searchbar *ngIf="editForm.value.isManager" [(ngModel)]="textSearchConsultant" (ionInput)="onSearch($event)"></ion-searchbar>
+  <ion-list *ngIf="editForm.value.isManager">
+    <ion-item *ngFor="let user of users | async | filter:searchText">
+      <ion-avatar item-left>
+        <img [src]="user.identity.picture">
+      </ion-avatar>
+      <h3>{{user.identity.name}}</h3>
+    </ion-item>
+  </ion-list>
+  <ion-fab right bottom>
+    <button ion-fab color="primary" type="submit" [disabled]="editForm.invalid"><ion-icon name="checkmark"></ion-icon></button>
+  </ion-fab>
+</ion-content>

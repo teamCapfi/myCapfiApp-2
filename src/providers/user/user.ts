@@ -1,13 +1,15 @@
 import { User } from './../interfaces/user.model';
 import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
+import { AngularFireDatabase,FirebaseListObservable,FirebaseObjectObservable} from 'angularfire2/database';
+
 
 @Injectable()
 export class UserProvider {
 
   private _infos : User;
 
-  constructor() {
+  constructor( private _afD : AngularFireDatabase) {
     
   }
 
@@ -22,12 +24,17 @@ export class UserProvider {
       key : new_user.key,
       family_name : new_user.family_name,
       given_name : new_user.given_name,
-      photo : new_user.photo
+      photo : new_user.photo,
+      isManager : new_user.isManager || false
    }
   }
 
   set key(new_key : string){
     this._infos.key = new_key;
+  }
+
+  getUsers() : FirebaseListObservable<any>{
+    return this._afD.list('/users');
   }
 
 

@@ -1,7 +1,7 @@
 import { UserProvider } from './../../providers/user/user';
 import { AuthProvider } from './../../providers/auth/auth';
 import { Component } from '@angular/core';
-import { NavController, Platform, Events, IonicPage } from 'ionic-angular';
+import { NavController, Platform, Events, IonicPage, ModalController } from 'ionic-angular';
 
 @IonicPage()
 @Component({
@@ -11,7 +11,7 @@ import { NavController, Platform, Events, IonicPage } from 'ionic-angular';
 export class HomePage {
   lauchLogin : boolean = false;
   errorLoginMessage : string = "";
-  constructor(public navCtrl: NavController, public auth: AuthProvider, public platform: Platform, public events : Events, public myUser : UserProvider) {
+  constructor(public navCtrl: NavController, public auth: AuthProvider, public platform: Platform, public events : Events, public myUser : UserProvider, public modalCtrl : ModalController) {
   }
 
 
@@ -19,7 +19,10 @@ export class HomePage {
       this.auth.logout();
   }
 
-  listenToEvents(){
+  editProfile(){
+    let modal = this.modalCtrl.create('EditProfilePage');
+    modal.present();
   }
+
 
 }

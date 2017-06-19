@@ -1,6 +1,7 @@
 import { environment } from './../environment/firebase/config';
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
@@ -20,7 +21,8 @@ import { UserProvider } from '../providers/user/user';
     IonicModule.forRoot(MyApp),
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    AngularFireDatabaseModule
+    AngularFireDatabaseModule, 
+    ReactiveFormsModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

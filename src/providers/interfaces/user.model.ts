@@ -4,7 +4,9 @@ export interface User {
     given_name ?: string,
     phoneNumber ?: string,
     email: string,
+    jobTitle ?: string,
     photo: string,
     status ?: string,
-    key: string
+    key: string,
+    isManager ?: boolean
 }
