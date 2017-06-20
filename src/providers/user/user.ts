@@ -32,7 +32,7 @@ export class UserProvider {
       jobTitle: "Developer",
       photo: new_user.photo,
       compagny: "Capfi",
-      isManager : new_user.isManager || false
+      isManager : new_user.isManager || false,
       status : ""
    }
    this.uid = new_user.key;

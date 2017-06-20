@@ -12,21 +12,19 @@ import { AuthProvider } from './../../providers/auth/auth';
   templateUrl: 'home.html'
 })
 export class HomePage {
-  lauchLogin : boolean = false;
-  errorLoginMessage : string = "";
   items: FirebaseObjectObservable<any>;
   public loadedUserList:Array<any>;
   //public userInfo: firebase.database.Reference;
-  uid = btoa(this.myUser.key);
 
   constructor(public auth: AuthProvider, public myUser: UserProvider, public modalCtrl: ModalController, db: AngularFireDatabase) {
+    console.log(myUser.infos);
     // relative URL, uses the database url provided in bootstrap
-    console.log(btoa(this.myUser.key));
-    this.items = db.object('/users/'+ btoa(this.myUser.key), { preserveSnapshot: true });
-    this.items.subscribe(snapshot => {
-      console.log(snapshot.key)
-      console.log(snapshot.val())
-    });
+    // console.log(btoa(this.myUser.key));
+    // this.items = db.object('/users/'+ btoa(this.myUser.key), { preserveSnapshot: true });
+    // this.items.subscribe(snapshot => {
+    //   console.log(snapshot.key)
+    //   console.log(snapshot.val())
+    // });
 
     /*this.items.$ref.on('value', userList => {
       let users = [];

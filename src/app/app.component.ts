@@ -22,11 +22,11 @@ export class MyApp {
       statusBar.styleDefault();
       //splashScreen.hide();
 
-    (<any>window).handleOpenURL = (url) => {
+      (<any>window).handleOpenURL = (url) => {
         Auth0Cordova.onRedirectUri(url);
-    };
+      };
 
-    this.listenTologinEvents();
+      this.listenTologinEvents();
       this.auth.isLoggedIn() ? this.rootPage = 'HomePage' : this.rootPage = "LoginPage";
     });
   }
