@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, ModalController, NavController } from 'ionic-angular';
+import { IonicPage, ModalController } from 'ionic-angular';
 
 import { AngularFireDatabase, FirebaseObjectObservable } from 'angularfire2/database';
 

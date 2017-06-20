@@ -3,6 +3,7 @@ import { UserProvider } from './../../providers/user/user';
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController, ModalController, ToastController } from 'ionic-angular';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 
 
 
@@ -14,6 +15,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 export class EditProfilePage {
 
   editForm : FormGroup;
+  teamMembers : Array<any> = [];
+  formerTeamMembers : Array<any> = [];
+  teamMembersSubscription : any;
 
   constructor(
    public navCtrl: NavController,
@@ -25,11 +29,11 @@ export class EditProfilePage {
    public toastCtrl : ToastController) {
 
     this.initComponent();
-    console.log('user', this.myUser.infos);
   }
 
   initComponent(){
     this.createForm();
+    this.getTeam();
   }
 
   createForm(){
@@ -41,19 +45,38 @@ export class EditProfilePage {
     })
   }
 
+  getTeam(){
+    this.teamMembersSubscription = this.myUser.getTeam().subscribe((users)=>{
+      users.forEach(userInfo => {
+        userInfo.data.subscribe((item)=>{
+        this.teamMembers.push(item);
+        this.formerTeamMembers.push(item);
+      })
+      });
+    });
+  }
+
   addInTeam(){
-    let modal = this.modalCtrl.create('SelectTeamMatesPage');
+    let modal = this.modalCtrl.create('SelectTeamMatesPage',{'teamMembers': this.teamMembers});
     modal.present();
 
+    modal.onDidDismiss((data)=>{
+      if(data && data.teamMembers.length != 0){
+        this.teamMembers = data.teamMembers;
+      }
+    })
   }
 
   onSubmit(){
-    this.myUser.updateUserData(this.editForm.value).then(()=>{
+    console.log("Before", this.formerTeamMembers);
+    console.log("After", this.teamMembers);
+
+/*    this.myUser.updateUserData(this.editForm.value).then(()=>{
       this.presentToast(eMessages.SUCCESS_UPDATE_PROFILE);
       this.viewCtrl.dismiss();
     }).catch(()=>{
       this.presentToast(eMessages.FAILURE_UPDATE_PROFILE);
-    })
+    })*/
   }
 
   presentToast(message : string) {
@@ -62,6 +85,10 @@ export class EditProfilePage {
       duration: 2000
     });
     toast.present();
+  }
+
+  ionViewWillLeave(){
+    this.teamMembersSubscription.unsubscribe();
   }
 
 
