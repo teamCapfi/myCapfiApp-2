@@ -8,18 +8,25 @@
 
 
 <ion-content>
-  <div text-center>
-     <h3>Ajouter dans mon équipe</h3>
-  </div>
-  
-  <ion-searchbar [(ngModel)]="textSearchConsultant"></ion-searchbar>
   <ion-list>
+    <ion-list-header>
+      Mon équipe
+    </ion-list-header>
+    <ion-item>Terminator II</ion-item>
+    <ion-item>The Empire Strikes Back</ion-item>
+    <ion-item>Blade Runner</ion-item>
+  </ion-list>
+
+  <ion-list>
+  <ion-searchbar [(ngModel)]="textSearchConsultant"></ion-searchbar>
+    <ion-list-header id="add-teammates-list-header">Ajouter à mon équipe</ion-list-header>
     <ion-item *ngFor="let user of users | async | filter:textSearchConsultant" (click)="selectPerson(user)">
       <ion-avatar item-left>
         <img [src]="user.identity.picture">
       </ion-avatar>
-      <h3>{{user.identity.name}}</h3>
-        <ion-icon item-right name="checkmark" color="primary"></ion-icon>
+      <ion-label>{{user.identity.name}}</ion-label>
+      <ion-checkbox item-left></ion-checkbox>
+        <!--<ion-icon item-right name="checkmark" color="primary"></ion-icon>-->
     </ion-item>
   </ion-list>
 </ion-content>
