@@ -3,18 +3,13 @@
     <ion-title>
       Home
     </ion-title>
-    <ion-buttons end>
-      <button ion-button icon-only (click)="editProfile()">
-        <ion-icon name="create"></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
   <ion-searchbar (ionInput)="getItems($event)"></ion-searchbar>
   <ion-list>
-    <ion-item *ngFor="let item of items">
+    <ion-item *ngFor="let user of userList">
       {{ item }}
     </ion-item>
   </ion-list>
@@ -23,10 +18,16 @@
   <div text-center *ngIf="myUser.infos">
     <img class="avatar-center" [src]="myUser.infos.photo">
     <ion-item text-center>
+      <ion-buttons item-end>
+        <button ion-button icon-only clear=true (click)="editProfile()">
+          <ion-icon name="create"></ion-icon>
+        </button>
+      </ion-buttons>
       <h2>{{ myUser.infos.name }}</h2>
       <p>{{ myUser.infos.jobTitle }} / {{ myUser.infos.compagny }}<br/>
          {{ myUser.infos.phoneNumber }}<br/>
-         {{ myUser.infos.email }}</p>
+         {{ myUser.infos.email }}<br/>
+         {{ myUser.infos.status }}</p>
     </ion-item>
   </div>
 
