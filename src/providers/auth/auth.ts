@@ -1,3 +1,4 @@
+import { StorageProvider } from './../storage/storage';
 import { UserProvider } from './../user/user';
 import { User } from './../interfaces/user.model';
 import { eMessages } from './../../environment/events/events.messages';
@@ -8,6 +9,7 @@ import 'rxjs/add/operator/map';
 import { AngularFireAuth } from 'angularfire2/auth';
 import Auth0Cordova from '@auth0/cordova';
 import Auth0 from 'auth0-js';
+
 
 
 declare var Auth0Lock: any;
@@ -51,7 +53,7 @@ export class AuthProvider {
   private idToken: string;
   isPlatformCordova: boolean = false;
 
-  constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events, private _myUser: UserProvider) {
+  constructor(public zone: NgZone, public afAuth: AngularFireAuth, public platform: Platform, public events: Events, private _myUser: UserProvider, public storage : StorageProvider) {
     this.detectPlatform();
 
     this._initLock();
@@ -110,6 +112,7 @@ export class AuthProvider {
 
     if (user && this.idToken && this.accessToken) {
       this._myUser.infos = user;
+      this._myUser.getUserData();
       console.log('isLoggedIn');
       return true;
     }
@@ -238,10 +241,10 @@ export class AuthProvider {
   }
 
   private _removeStorage() {
-    window.localStorage.removeItem('profile');
-    window.localStorage.removeItem('access_token');
-    window.localStorage.removeItem('id_token');
-
+    this.storage.removeLocalStorage('profile');
+    this.storage.removeLocalStorage('access_token');
+    this.storage.removeLocalStorage('id_token');
+  
     this.idToken = null;
     this.accessToken = null;
   }

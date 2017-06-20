@@ -1,8 +1,9 @@
+import { eMessages } from './../../environment/events/events.messages';
 import { UserProvider } from './../../providers/user/user';
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ViewController, ModalController, ToastController } from 'ionic-angular';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
+
 
 
 @IonicPage()
@@ -13,37 +14,55 @@ import { Observable } from 'rxjs/Observable';
 export class EditProfilePage {
 
   editForm : FormGroup;
-  textSearchConsultant = '';
-  users : Observable<any>;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public viewCtrl : ViewController, public myUser : UserProvider, private fb : FormBuilder) {
+  constructor(
+   public navCtrl: NavController,
+   public navParams: NavParams, 
+   public viewCtrl : ViewController, 
+   public myUser : UserProvider, 
+   private fb : FormBuilder, 
+   public modalCtrl : ModalController,
+   public toastCtrl : ToastController) {
+
     this.initComponent();
-    console.log('myUser', this.myUser.infos);
+    console.log('user', this.myUser.infos);
   }
 
   initComponent(){
     this.createForm();
-    this.getListOfUsers();
   }
 
   createForm(){
     this.editForm = this.fb.group({
-      jobTitle : this.myUser.infos.jobTitle,
-      statut : this.myUser.infos.status || 'En mission',
-      tel : this.myUser.infos.phoneNumber,
+      jobTitle : this.myUser.infos.jobTitle || "",
+      status : this.myUser.infos.status || 'En mission',
+      phoneNumber : this.myUser.infos.phoneNumber || "",
       isManager : this.myUser.infos.isManager
     })
   }
 
-  getListOfUsers(){
-    this.users = this.myUser.getUsers().map((users)=>{
-      const list_without_myUser = users.filter((user)=>user.identity.user_id != this.myUser.infos.key)
-      return list_without_myUser;
+  addInTeam(){
+    let modal = this.modalCtrl.create('SelectTeamMatesPage');
+    modal.present();
+
+  }
+
+  onSubmit(){
+    this.myUser.updateUserData(this.editForm.value).then(()=>{
+      this.presentToast(eMessages.SUCCESS_UPDATE_PROFILE);
+      this.viewCtrl.dismiss();
+    }).catch(()=>{
+      this.presentToast(eMessages.FAILURE_UPDATE_PROFILE);
+    })
+  }
+
+  presentToast(message : string) {
+    let toast = this.toastCtrl.create({
+      message: message,
+      duration: 2000
     });
+    toast.present();
   }
 
-  onSearch(){
-
-  }
 
 }
