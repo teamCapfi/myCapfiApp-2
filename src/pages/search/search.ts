@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { IonicPage, ModalController, NavController, ViewController } from 'ionic-angular';
+import { IonicPage, ModalController, ViewController } from 'ionic-angular';
 
-import { AngularFireDatabase, FirebaseObjectObservable, FirebaseListObservable } from 'angularfire2/database';
+import { FirebaseListObservable } from 'angularfire2/database';
 import { Subscription} from 'rxjs/Subscription';
 
 import { UserProvider } from './../../providers/user/user';
@@ -61,7 +61,7 @@ export class SearchPage {
     //console.log(q, this._usersList.length);
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this._disconnected.unsubscribe();
   }
 }

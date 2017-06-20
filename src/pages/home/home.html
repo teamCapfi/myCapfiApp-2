@@ -1,8 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>
-      Home
-    </ion-title>
+    <ion-title> Home </ion-title>
     <ion-buttons end>
       <button ion-button icon-only (click)="searchPage()">
         <ion-icon name="search"></ion-icon>
@@ -34,18 +32,14 @@
 
   <div padding>
     <ion-segment [(ngModel)]="segmentType">
-      <ion-segment-button value="missions">
-        Missions
-      </ion-segment-button>
-      <ion-segment-button value="skills">
-        Compétences
-      </ion-segment-button>
+      <ion-segment-button value="missions"> Missions </ion-segment-button>
+      <ion-segment-button value="skills"> Compétences </ion-segment-button>
     </ion-segment>
   </div>
   <div [ngSwitch]="segmentType">
     <ion-list class="missionsList" *ngSwitchCase= "">     <!-- *ngSwitchCase= "'events'" -->
       <ion-item-sliding #missionsList *ngFor="let session of sessions | async">
-        <ion-item (click)="goToEventDetail(session)">{{session.name}}</ion-item>
+        <ion-item (click)="goToEventDetail(session)">{{ session.name }}</ion-item>
         <ion-item-options side="right">
           <button ion-button icon-only clear (click)="addToFavorite(session.$key,eventList)">
             <ion-icon name="star"></ion-icon>
@@ -55,8 +49,8 @@
     </ion-list>
     <ion-list *ngSwitchCase="">         <!-- *ngSwitchCase= "'news'" -->
       <ion-item *ngFor ="let new of news | async">
-        <h3>{{new.fields.name}}</h3>
-        <p>{{new.fields.date | date : 'short'}}</p>
+        <h3>{{ new.fields.name }}</h3>
+        <p>{{ new.fields.date | date : 'short' }}</p>
       </ion-item>
     </ion-list>
   </div>
