@@ -1,0 +1,16 @@
+<ion-header class="modal-profile-header">
+    <ion-buttons start>
+        <button ion-button clear icon-only (click)="viewCtrl.dismiss()">
+            <ion-icon name="arrow-round-back"></ion-icon>
+        </button>
+    </ion-buttons>
+</ion-header>
+
+<ion-content padding>
+  <ion-searchbar (ionInput)="getItems($event)" (click)="_inSearchBar=true"></ion-searchbar>
+  <ion-list *ngIf="_inSearchBar">
+    <ion-item *ngFor="let user of _usersList">
+      {{ user.identity.name }}
+    </ion-item>
+  </ion-list>
+</ion-content>

@@ -9,5 +9,5 @@ export interface User {
     status ?: string,
     key: string,
     isManager ?: boolean,
-    compagny ?: string
+    company ?: string
 }
