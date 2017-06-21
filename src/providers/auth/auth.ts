@@ -221,6 +221,7 @@ export class AuthProvider {
       }
       this._myUser.infos = newUser;
       this.setStorageVariable('profile', newUser);
+      this._myUser.getUserData();
       this.loginEvent();
   }
 
