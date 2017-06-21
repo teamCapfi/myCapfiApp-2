@@ -14,7 +14,8 @@
     <p>{{myUser.infos.email}}</p>
   </div>
   <form [formGroup]="editForm" novalidate>
-    <ion-list class="edit-profile-form-list">
+    <ion-item-group class="edit-profile-form-item-group">
+      <ion-item-divider color="light">Mes infos</ion-item-divider>
       <ion-item>
         <ion-label floating> Titre du Poste</ion-label>
         <ion-input formControlName="jobTitle"></ion-input>
@@ -36,14 +37,23 @@
         <ion-label *ngIf="!editForm.value.isManager">Je ne suis pas Manager</ion-label>
         <ion-toggle value="isManager" formControlName="isManager"></ion-toggle>
       </ion-item>
-      <ion-item *ngIf="editForm.value.isManager">
-        <button ion-item (click)="addInTeam()">
-          Voir ma team
-        </button>
+    </ion-item-group>
+    <ion-item-group *ngIf="editForm.value.isManager">
+      <ion-item-divider color="light"></ion-item-divider>
+      <ion-item>
+        <h2>Mon équipe</h2>
+        <h3 float-right *ngIf="teamMembers.length !=0" color="light" (click)="addInTeam()">Modifier</h3>
+        <p *ngIf="teamMembers.length == 0"> Votre équipe est vide</p>
       </ion-item>
-    </ion-list>
+      <ion-item *ngFor="let member of teamMembers">
+          <ion-avatar item-left>
+            <img [src]="member.identity?.picture">
+          </ion-avatar>
+          <ion-label>{{member.identity?.name}}</ion-label>
+      </ion-item>
+    </ion-item-group>
   </form>
   <ion-fab right bottom>
-    <button ion-fab color="primary" type="submit" [disabled]="editForm.invalid" (click)="onSubmit()" ><ion-icon name="checkmark"></ion-icon></button>
+    <button ion-fab color="primary" type="submit" [disabled]="editForm.invalid && editForm.dirty" (click)="onSubmit()"><ion-icon name="checkmark"></ion-icon></button>
   </ion-fab>
 </ion-content>

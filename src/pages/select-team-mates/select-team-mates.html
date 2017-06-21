@@ -1,5 +1,5 @@
 <ion-header class="modal-profile-header">
-    <ion-buttons start>
+  <ion-buttons start>
     <button ion-button clear icon-only (click)="viewCtrl.dismiss()">
         <ion-icon name="close"></ion-icon>
       </button>
@@ -12,21 +12,39 @@
     <ion-list-header>
       Mon équipe
     </ion-list-header>
-    <ion-item>Terminator II</ion-item>
-    <ion-item>The Empire Strikes Back</ion-item>
-    <ion-item>Blade Runner</ion-item>
+    <ion-item *ngIf="teamMembers.length == 0">
+      Votre équipe est vide
+    </ion-item>
+    <ion-item-sliding #itemSliding *ngFor="let member of teamMembers">
+      <ion-item>
+        <ion-avatar item-left>
+          <img [src]="member.identity?.picture">
+        </ion-avatar>
+        <ion-label>{{member.identity?.name}}</ion-label>
+      </ion-item>
+      <ion-item-options side="right">
+        <button ion-button color="danger" (click)="deleteTeamMates(member, itemSliding)">
+          <ion-icon name="trash"></ion-icon>
+          Supprimer
+        </button>
+      </ion-item-options>
+    </ion-item-sliding>
+
   </ion-list>
 
   <ion-list>
-  <ion-searchbar [(ngModel)]="textSearchConsultant"></ion-searchbar>
+    <ion-searchbar [(ngModel)]="textSearchConsultant"></ion-searchbar>
     <ion-list-header id="add-teammates-list-header">Ajouter à mon équipe</ion-list-header>
     <ion-item *ngFor="let user of users | async | filter:textSearchConsultant" (click)="selectPerson(user)">
       <ion-avatar item-left>
         <img [src]="user.identity.picture">
       </ion-avatar>
       <ion-label>{{user.identity.name}}</ion-label>
-      <ion-checkbox item-left></ion-checkbox>
-        <!--<ion-icon item-right name="checkmark" color="primary"></ion-icon>-->
+      <ion-checkbox item-right (ionChange)="selectPerson(user)"></ion-checkbox>
     </ion-item>
   </ion-list>
 </ion-content>
+
+<ion-footer>
+    <button ion-button full (click)="saveTeam()">Ok</button>
+</ion-footer>

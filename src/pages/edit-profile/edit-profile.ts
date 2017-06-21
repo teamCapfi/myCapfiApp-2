@@ -5,7 +5,6 @@ import { IonicPage, NavController, NavParams, ViewController, ModalController, T
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 
-
 @IonicPage()
 @Component({
   selector: 'page-edit-profile',
@@ -14,6 +13,10 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 export class EditProfilePage {
 
   editForm : FormGroup;
+  teamMembers : Array<any> = [];
+  newTeamMembers : Array<any> = [];
+  formerTeamMembers : Array<any> = [];
+  teamMembersSubscription : any;
 
   constructor(
    public navCtrl: NavController,
@@ -25,30 +28,56 @@ export class EditProfilePage {
    public toastCtrl : ToastController) {
 
     this.initComponent();
-    console.log('user', this.myUser.infos);
   }
 
   initComponent(){
     this.createForm();
+    this.getTeam();
   }
 
   createForm(){
     this.editForm = this.fb.group({
+      jobTitle : '',
+      status : '',
+      phoneNumber : '',
+      isManager : ''
+    })
+
+    this.editForm.setValue({
       jobTitle : this.myUser.infos.jobTitle || "",
       status : this.myUser.infos.status || 'En mission',
-      phoneNumber : this.myUser.infos.phoneNumber || "",
+      phoneNumber : this.myUser.infos.phoneNumber || '',
       isManager : this.myUser.infos.isManager
     })
   }
 
-  addInTeam(){
-    let modal = this.modalCtrl.create('SelectTeamMatesPage');
-    modal.present();
-
+  getTeam(){
+    this.teamMembersSubscription = this.myUser.getTeam().subscribe((users)=>{
+      users.forEach(userInfo => {
+        userInfo.data.subscribe((item)=>{
+        this.teamMembers.push(item);
+      })
+      });
+    });
   }
 
+  addInTeam(){
+    let modal = this.modalCtrl.create('SelectTeamMatesPage',{'teamMembers': this.teamMembers});
+    modal.present();
+
+    modal.onDidDismiss((data)=>{
+      if(data){
+        this.teamMembers = data.teamMembers;
+        this.formerTeamMembers = data.formerTeamMembers;
+        this.newTeamMembers = data.newTeamMembers;
+      }
+    })
+  }
+
+
   onSubmit(){
-    this.myUser.updateUserData(this.editForm.value).then(()=>{
+    console.log(this.editForm);
+    this.myUser.updateUserData(this.editForm.value,this.formerTeamMembers, this.teamMembers, this.newTeamMembers).then(()=>{
       this.presentToast(eMessages.SUCCESS_UPDATE_PROFILE);
       this.viewCtrl.dismiss();
     }).catch(()=>{
@@ -56,12 +85,20 @@ export class EditProfilePage {
     })
   }
 
+
+
+  
+
   presentToast(message : string) {
     let toast = this.toastCtrl.create({
       message: message,
       duration: 2000
     });
     toast.present();
+  }
+
+  ionViewWillLeave(){
+    this.teamMembersSubscription.unsubscribe();
   }
 
 
