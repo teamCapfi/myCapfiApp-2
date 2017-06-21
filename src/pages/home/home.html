@@ -1,19 +1,18 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>
-      Home
-    </ion-title>
+    <ion-title> Home </ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="searchPage()">
+        <ion-icon name="search"></ion-icon>
+      </button>
+      <button ion-button icon-only (click)="logout()">
+        <ion-icon name="log-out"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  <ion-searchbar (ionInput)="getItems($event)"></ion-searchbar>
-  <ion-list>
-    <ion-item *ngFor="let user of userList">
-      {{ item }}
-    </ion-item>
-  </ion-list>
-
   <!-- a card with your picture and name, plus a logout button -->
   <div text-center *ngIf="myUser.infos">
     <img class="avatar-center" [src]="myUser.infos.photo">
@@ -24,7 +23,7 @@
         </button>
       </ion-buttons>
       <h2>{{ myUser.infos.name }}</h2>
-      <p>{{ myUser.infos.jobTitle }} / {{ myUser.infos.compagny }}<br/>
+      <p>{{ myUser.infos.jobTitle }} / {{ myUser.infos.company }}<br/>
          {{ myUser.infos.phoneNumber }}<br/>
          {{ myUser.infos.email }}<br/>
          {{ myUser.infos.status }}</p>
@@ -33,18 +32,14 @@
 
   <div padding>
     <ion-segment [(ngModel)]="segmentType">
-      <ion-segment-button value="missions">
-        Missions
-      </ion-segment-button>
-      <ion-segment-button value="skills">
-        Compétences
-      </ion-segment-button>
+      <ion-segment-button value="missions"> Missions </ion-segment-button>
+      <ion-segment-button value="skills"> Compétences </ion-segment-button>
     </ion-segment>
   </div>
   <div [ngSwitch]="segmentType">
     <ion-list class="missionsList" *ngSwitchCase= "">     <!-- *ngSwitchCase= "'events'" -->
       <ion-item-sliding #missionsList *ngFor="let session of sessions | async">
-        <ion-item (click)="goToEventDetail(session)">{{session.name}}</ion-item>
+        <ion-item (click)="goToEventDetail(session)">{{ session.name }}</ion-item>
         <ion-item-options side="right">
           <button ion-button icon-only clear (click)="addToFavorite(session.$key,eventList)">
             <ion-icon name="star"></ion-icon>
@@ -54,10 +49,9 @@
     </ion-list>
     <ion-list *ngSwitchCase="">         <!-- *ngSwitchCase= "'news'" -->
       <ion-item *ngFor ="let new of news | async">
-        <h3>{{new.fields.name}}</h3>
-        <p>{{new.fields.date | date : 'short'}}</p>
+        <h3>{{ new.fields.name }}</h3>
+        <p>{{ new.fields.date | date : 'short' }}</p>
       </ion-item>
     </ion-list>
-    <button ion-button block color="primary" (click)="logout()">Logout</button>
   </div>
 </ion-content>

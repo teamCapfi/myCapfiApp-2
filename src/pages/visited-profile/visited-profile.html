@@ -1,0 +1,21 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Profile</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <div text-center>
+    <img class="avatar-center" [src]="_user?.identity.picture">
+    <ion-item text-center>
+      <h2>{{ _user?.identity.name }}</h2>
+      <p>{{ _user?.identity.jobTitle }} / {{ _user?.identity.company }}<br/>
+         {{ _user?.identity.phoneNumber }}<br/>
+         {{ _user?.identity.email }}<br/>
+         {{ _user?.identity.status }}</p>
+    </ion-item>
+  </div>
+</ion-content>

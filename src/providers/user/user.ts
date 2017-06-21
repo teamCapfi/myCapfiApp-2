@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as firebase from 'firebase';
 import 'rxjs/add/operator/map';
-import { AngularFireDatabase,FirebaseListObservable} from 'angularfire2/database';
+import { AngularFireDatabase, FirebaseListObservable} from 'angularfire2/database';
 
 import { User } from './../interfaces/user.model';
 import 'rxjs/add/operator/map';
@@ -29,9 +29,9 @@ export class UserProvider {
       key: new_user.key,
       family_name: new_user.family_name,
       given_name: new_user.given_name,
-      jobTitle: "Developer",
+      jobTitle: "",
       photo: new_user.photo,
-      compagny: "Capfi",
+      company: "",
       isManager : new_user.isManager || false,
       status : ""
    }
@@ -55,8 +55,9 @@ export class UserProvider {
     this._infos.key = new_key;
   }
 
-  getUsers() : FirebaseListObservable<any>{
-    return this._afD.list('/users');
+  getUsers(): FirebaseListObservable<any> {
+    // relative URL, uses the database url provided in bootstrap
+    return this._afD.list('/users', { preserveSnapshot: true });
   }
 
   updateUserData(user_data : any) : firebase.Promise<void>{
