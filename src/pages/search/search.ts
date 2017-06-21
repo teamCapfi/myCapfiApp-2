@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, ModalController, ViewController } from 'ionic-angular';
-
+import { IonicPage, ViewController, App } from 'ionic-angular';
 import { FirebaseListObservable } from 'angularfire2/database';
 import { Subscription} from 'rxjs/Subscription';
 
@@ -19,7 +18,7 @@ export class SearchPage {
   private _disconnected: Subscription;
   private _inSearchBar: boolean = false;
 
-  constructor(public auth: AuthProvider, public myUser: UserProvider, public modalCtrl: ModalController, public viewCtrl : ViewController) {
+  constructor(public auth: AuthProvider, public myUser: UserProvider, public viewCtrl: ViewController, public appCtrl: App) {
     let items = [];
 
     this._itemsList = myUser.getUsers();
@@ -66,5 +65,10 @@ export class SearchPage {
 
   ionViewWillLeave(): void {
     this._disconnected.unsubscribe();
+  }
+
+  goToConsultantPage(user): void {
+    this.viewCtrl.dismiss();
+    this.appCtrl.getRootNav().push("VisitedProfilePage", {'user': user});
   }
 }

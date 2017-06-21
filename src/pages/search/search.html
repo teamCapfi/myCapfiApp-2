@@ -1,7 +1,7 @@
 <ion-header class="modal-profile-header">
     <ion-buttons start>
         <button ion-button clear icon-only (click)="viewCtrl.dismiss()">
-            <ion-icon name="arrow-round-back"></ion-icon>
+            <ion-icon name="close"></ion-icon>
         </button>
     </ion-buttons>
 </ion-header>
@@ -9,8 +9,12 @@
 <ion-content padding>
   <ion-searchbar (ionInput)="getItems($event)" (click)="_inSearchBar=true"></ion-searchbar>
   <ion-list *ngIf="_inSearchBar">
-    <ion-item *ngFor="let user of _usersList" href="#/search-result">
+    <ion-item *ngFor="let user of _usersList" class="search-result" (click)="goToConsultantPage(user)">
+      <ion-avatar item-left>
+        <img [src]="user.identity.picture">
+      </ion-avatar>
       {{ user.identity.name }}
+      <ion-icon name="trending-up" class="arrow" item-right></ion-icon>
     </ion-item>
   </ion-list>
 </ion-content>
