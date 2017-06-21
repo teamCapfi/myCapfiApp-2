@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import * as firebase from 'firebase';
 import 'rxjs/add/operator/map';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 
@@ -75,27 +74,23 @@ export class UserProvider {
 
   updateUserData(user_data: any, formerTeamMembers?: Array<any>, teamMembers?: Array<any>, newTeamMembers?: Array<any>): any {
     //Save data in user service
+          console.log(user_data);
     this._infos.isManager = user_data.isManager;
     this._infos.phoneNumber = user_data.phoneNumber;
     this._infos.status = user_data.status;
     this._infos.jobTitle = user_data.jobTitle;
 
+    this._afD.object('/users/' + this._uid + '/identity').update(user_data);
+      //Save in the storage
+      //TODO: see if there are useful data to save in storage
     if (this.infos.isManager) {
       if (this.teamKey === "") {
-        return this.createTeam(teamMembers).then(() => {
-           this._afD.object('/users/' + this._uid + '/identity').update(user_data);
-        }).catch((err) => {
+        return this.createTeam(teamMembers).catch((err) => {
           console.log(err);
         });
       } else {
         return this.updateTeamMembers(formerTeamMembers, teamMembers, newTeamMembers);
       }
-    }
-    else {
-      //Update data in the database
-      return this._afD.object('/users/' + this._uid + '/identity').update(user_data);
-      //Save in the storage
-      //TODO: see if there are useful data to save in storage
     }
 
   }

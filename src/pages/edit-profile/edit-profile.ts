@@ -3,8 +3,6 @@ import { UserProvider } from './../../providers/user/user';
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController, ModalController, ToastController } from 'ionic-angular';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
-
 
 
 @IonicPage()
@@ -39,9 +37,16 @@ export class EditProfilePage {
 
   createForm(){
     this.editForm = this.fb.group({
+      jobTitle : '',
+      status : '',
+      phoneNumber : '',
+      isManager : ''
+    })
+
+    this.editForm.setValue({
       jobTitle : this.myUser.infos.jobTitle || "",
       status : this.myUser.infos.status || 'En mission',
-      phoneNumber : this.myUser.infos.phoneNumber || "",
+      phoneNumber : this.myUser.infos.phoneNumber || '',
       isManager : this.myUser.infos.isManager
     })
   }
@@ -71,6 +76,7 @@ export class EditProfilePage {
 
 
   onSubmit(){
+    console.log(this.editForm);
     this.myUser.updateUserData(this.editForm.value,this.formerTeamMembers, this.teamMembers, this.newTeamMembers).then(()=>{
       this.presentToast(eMessages.SUCCESS_UPDATE_PROFILE);
       this.viewCtrl.dismiss();
