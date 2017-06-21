@@ -9,7 +9,7 @@
 <ion-content padding>
   <ion-searchbar (ionInput)="getItems($event)" (click)="_inSearchBar=true"></ion-searchbar>
   <ion-list *ngIf="_inSearchBar">
-    <ion-item *ngFor="let user of _usersList">
+    <ion-item *ngFor="let user of _usersList" href="#/search-result">
       {{ user.identity.name }}
     </ion-item>
   </ion-list>

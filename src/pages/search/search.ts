@@ -25,7 +25,10 @@ export class SearchPage {
     this._itemsList = myUser.getUsers();
     this._disconnected = this._itemsList.subscribe(snapshots => {
       snapshots.forEach(snapshot => {
-        items.push(snapshot.val())
+        if(snapshot.val().identity.email != myUser.infos.email) {
+          items.push(snapshot.val())
+          console.log(snapshot.val())
+        }
       });
       this._usersList = items;
       this._loadedUsersList = items;
@@ -34,7 +37,7 @@ export class SearchPage {
   }
 
   initializeItems(): void {
-    this._usersList = this._loadedUsersList;
+    this._usersList = this._loadedUsersList; 
   }
 
   getItems(searchbar) {
