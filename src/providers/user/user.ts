@@ -10,7 +10,7 @@ import 'rxjs/add/operator/map';
 export class UserProvider {
   private _infos: User;
   private _uid: string;
-  private _teamKey : string;
+  private _teamKey: string;
 
   constructor(private _afD: AngularFireDatabase) {
 
@@ -23,15 +23,15 @@ export class UserProvider {
     this._uid = btoa(key);
   }
 
-  get teamKey(): string{
+  get teamKey(): string {
     return this._teamKey;
   }
 
-  set teamKey(tK : string){
+  set teamKey(tK: string) {
     this._teamKey = tK;
   }
 
-  get uid():string{
+  get uid(): string {
     return this._uid;
   }
 
@@ -73,58 +73,92 @@ export class UserProvider {
     return this._afD.list('/users');
   }
 
-  updateUserData(user_data: any): firebase.Promise<void> {
+  updateUserData(user_data: any, formerTeamMembers?: Array<any>, teamMembers?: Array<any>, newTeamMembers?: Array<any>): any {
     //Save data in user service
     this._infos.isManager = user_data.isManager;
     this._infos.phoneNumber = user_data.phoneNumber;
     this._infos.status = user_data.status;
     this._infos.jobTitle = user_data.jobTitle;
-    //Update data in the database
-    return this._afD.object('/users/' + this._uid + '/identity').update(user_data);
-    //Save in the storage
-    //TODO: see if there are useful data to save in storage
+
+    if (this.infos.isManager) {
+      if (this.teamKey === "") {
+        return this.createTeam(teamMembers).then(() => {
+           this._afD.object('/users/' + this._uid + '/identity').update(user_data);
+        }).catch((err) => {
+          console.log(err);
+        });
+      } else {
+        return this.updateTeamMembers(formerTeamMembers, teamMembers, newTeamMembers);
+      }
+    }
+    else {
+      //Update data in the database
+      return this._afD.object('/users/' + this._uid + '/identity').update(user_data);
+      //Save in the storage
+      //TODO: see if there are useful data to save in storage
+    }
+
   }
 
-  getTeam(){
+  getTeam() {
     return this._afD.list(`/teams/${this.teamKey}`).map((items) => {
       return items.map(item => {
-        item.data =  this._afD.object(`/users/${item.$key}`);
+        item.data = this._afD.object(`/users/${item.$key}`);
         return item;
       });
     });
   }
 
-/*  getTeam():Promise<any>{
-    let teamMembers : Array<any> = [];
-    return new Promise((resolve,reject)=>{
-      if(!this.infos.isManager) reject("Vous n'êtes pas un manager");
-      else if (this.teamKey == "") reject("Vous n'êtes pas dans une équipe");
-      else{
-        let teamRef = this._afD.list(`/teams/${this.teamKey}`).$ref;
-        teamRef.once('value').then(snapshot=>{
-          Object.keys(snapshot).forEach((key,index)=>{
-            this._afD.list(`/users/${key}/identity`).$ref.once('value').then((user_info)=>{
-              teamMembers.push(user_info);
-            }).catch((err)=>{
-              reject(err);
+  /*  getTeam():Promise<any>{
+      let teamMembers : Array<any> = [];
+      return new Promise((resolve,reject)=>{
+        if(!this.infos.isManager) reject("Vous n'êtes pas un manager");
+        else if (this.teamKey == "") reject("Vous n'êtes pas dans une équipe");
+        else{
+          let teamRef = this._afD.list(`/teams/${this.teamKey}`).$ref;
+          teamRef.once('value').then(snapshot=>{
+            Object.keys(snapshot).forEach((key,index)=>{
+              this._afD.list(`/users/${key}/identity`).$ref.once('value').then((user_info)=>{
+                teamMembers.push(user_info);
+              }).catch((err)=>{
+                reject(err);
+              })
             })
-          })
-        });
-      }
-    })
-  }*/
+          });
+        }
+      })
+    }*/
 
-  updateTeamMember(newTeamMembers : Array<any>, formerTeamMembers : Array<any>){
-
-  }
-
-  createTeam(teamMembers: Array<any>) {
+  private _extractKeys(teamMembers): Object {
     let teamMembersKey: Object = {};
     if (teamMembers.length != 0) {
       teamMembers.forEach((teamMember) => {
         teamMembersKey[teamMember.$key] = true
       })
     }
+    return teamMembersKey;
+  }
+
+  updateTeamMembers(formerTeamMembers: Array<any>, teamMembers: Array<any>, newTeamMembers: Array<any>, ) {
+    let TeamMembersKey: Object = {};
+      TeamMembersKey = this._extractKeys(teamMembers);
+      if (this.teamKey != "") return this._afD.object(`/teams/${this.teamKey}`).set(TeamMembersKey).then(() => {
+        if(Object.keys(TeamMembersKey).length === 0) this.teamKey = "";
+        if(newTeamMembers.length != 0){
+          newTeamMembers.forEach(newTeamMemb => {
+            this._afD.object(`/users/${newTeamMemb.$key}`).update({ 'teamKey': this.teamKey })
+          });
+        }
+        if(formerTeamMembers.length != 0){
+          formerTeamMembers.forEach(formerTeamMemb => {
+            this._afD.object(`/users/${formerTeamMemb.$key}/teamKey`).remove();
+          });
+        }
+      });
+  }
+
+  createTeam(teamMembers: Array<any>) {
+    let teamMembersKey: Object = this._extractKeys(teamMembers);
     return new Promise((resolve, reject) => {
       if (!this.infos.isManager) reject("Vous n'êtes pas manager");
       else {
@@ -135,11 +169,12 @@ export class UserProvider {
             });
           }));
           this._afD.object('/users/' + this.uid).update({ "teamKey": new_team.key }).then(() => {
+            this.teamKey = new_team.key;
             resolve('Team Created');
           }).catch((err) => {
             reject(err);
           })
-        }).catch((err)=>{
+        }).catch((err) => {
           reject(err);
         })
       }

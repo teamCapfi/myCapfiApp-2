@@ -16,6 +16,7 @@ export class EditProfilePage {
 
   editForm : FormGroup;
   teamMembers : Array<any> = [];
+  newTeamMembers : Array<any> = [];
   formerTeamMembers : Array<any> = [];
   teamMembersSubscription : any;
 
@@ -50,7 +51,6 @@ export class EditProfilePage {
       users.forEach(userInfo => {
         userInfo.data.subscribe((item)=>{
         this.teamMembers.push(item);
-        this.formerTeamMembers.push(item);
       })
       });
     });
@@ -61,23 +61,27 @@ export class EditProfilePage {
     modal.present();
 
     modal.onDidDismiss((data)=>{
-      if(data && data.teamMembers.length != 0){
+      if(data){
         this.teamMembers = data.teamMembers;
+        this.formerTeamMembers = data.formerTeamMembers;
+        this.newTeamMembers = data.newTeamMembers;
       }
     })
   }
 
-  onSubmit(){
-    console.log("Before", this.formerTeamMembers);
-    console.log("After", this.teamMembers);
 
-/*    this.myUser.updateUserData(this.editForm.value).then(()=>{
+  onSubmit(){
+    this.myUser.updateUserData(this.editForm.value,this.formerTeamMembers, this.teamMembers, this.newTeamMembers).then(()=>{
       this.presentToast(eMessages.SUCCESS_UPDATE_PROFILE);
       this.viewCtrl.dismiss();
     }).catch(()=>{
       this.presentToast(eMessages.FAILURE_UPDATE_PROFILE);
-    })*/
+    })
   }
+
+
+
+  
 
   presentToast(message : string) {
     let toast = this.toastCtrl.create({
