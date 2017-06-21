@@ -12,61 +12,66 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 })
 export class EditProfilePage {
 
-  editForm : FormGroup;
-  teamMembers : Array<any> = [];
-  newTeamMembers : Array<any> = [];
-  formerTeamMembers : Array<any> = [];
-  teamMembersSubscription : any;
+  editForm: FormGroup;
+  teamMembers: Array<any> = [];
+  newTeamMembers: Array<any> = [];
+  formerTeamMembers: Array<any> = [];
+  teamMembersSubscription: any;
+  hasTeam : boolean = false;
 
   constructor(
-   public navCtrl: NavController,
-   public navParams: NavParams, 
-   public viewCtrl : ViewController, 
-   public myUser : UserProvider, 
-   private fb : FormBuilder, 
-   public modalCtrl : ModalController,
-   public toastCtrl : ToastController) {
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    public viewCtrl: ViewController,
+    public myUser: UserProvider,
+    private fb: FormBuilder,
+    public modalCtrl: ModalController,
+    public toastCtrl: ToastController) {
+    console.log(this.myUser);
 
     this.initComponent();
   }
 
-  initComponent(){
+  initComponent() {
     this.createForm();
     this.getTeam();
   }
 
-  createForm(){
+  createForm() {
     this.editForm = this.fb.group({
-      jobTitle : '',
-      status : '',
-      phoneNumber : '',
-      isManager : ''
+      jobTitle: '',
+      status: '',
+      phoneNumber: '',
+      isManager: ''
     })
 
     this.editForm.setValue({
-      jobTitle : this.myUser.infos.jobTitle || "",
-      status : this.myUser.infos.status || 'En mission',
-      phoneNumber : this.myUser.infos.phoneNumber || '',
-      isManager : this.myUser.infos.isManager
+      jobTitle: this.myUser.infos.jobTitle || "",
+      status: this.myUser.infos.status || 'En mission',
+      phoneNumber: this.myUser.infos.phoneNumber || '',
+      isManager: this.myUser.infos.isManager
     })
   }
 
-  getTeam(){
-    this.teamMembersSubscription = this.myUser.getTeam().subscribe((users)=>{
-      users.forEach(userInfo => {
-        userInfo.data.subscribe((item)=>{
-        this.teamMembers.push(item);
-      })
+  getTeam() {
+    if (this.myUser.teamKey != "") {
+      this.hasTeam = true;
+      this.teamMembersSubscription = this.myUser.getTeam().subscribe((users) => {
+        users.forEach(userInfo => {
+          userInfo.data.subscribe((item) => {
+            this.teamMembers.push(item);
+          })
+        });
       });
-    });
+    }
   }
 
-  addInTeam(){
-    let modal = this.modalCtrl.create('SelectTeamMatesPage',{'teamMembers': this.teamMembers});
+  addInTeam() {
+    let modal = this.modalCtrl.create('SelectTeamMatesPage', { 'teamMembers': this.teamMembers });
     modal.present();
 
-    modal.onDidDismiss((data)=>{
-      if(data){
+    modal.onDidDismiss((data) => {
+      if (data) {
         this.teamMembers = data.teamMembers;
         this.formerTeamMembers = data.formerTeamMembers;
         this.newTeamMembers = data.newTeamMembers;
@@ -75,21 +80,17 @@ export class EditProfilePage {
   }
 
 
-  onSubmit(){
+  onSubmit() {
     console.log(this.editForm);
-    this.myUser.updateUserData(this.editForm.value,this.formerTeamMembers, this.teamMembers, this.newTeamMembers).then(()=>{
+    this.myUser.updateUserData(this.editForm.value, this.formerTeamMembers, this.teamMembers, this.newTeamMembers).then(() => {
       this.presentToast(eMessages.SUCCESS_UPDATE_PROFILE);
       this.viewCtrl.dismiss();
-    }).catch(()=>{
+    }).catch(() => {
       this.presentToast(eMessages.FAILURE_UPDATE_PROFILE);
     })
   }
 
-
-
-  
-
-  presentToast(message : string) {
+  presentToast(message: string) {
     let toast = this.toastCtrl.create({
       message: message,
       duration: 2000
@@ -97,8 +98,8 @@ export class EditProfilePage {
     toast.present();
   }
 
-  ionViewWillLeave(){
-    this.teamMembersSubscription.unsubscribe();
+  ionViewWillLeave() {
+    if(this.hasTeam) this.teamMembersSubscription.unsubscribe();
   }
 
 

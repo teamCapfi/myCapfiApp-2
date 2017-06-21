@@ -42,7 +42,7 @@
       <ion-item-divider color="light"></ion-item-divider>
       <ion-item>
         <h2>Mon équipe</h2>
-        <h3 float-right *ngIf="teamMembers.length !=0" color="light" (click)="addInTeam()">Modifier</h3>
+        <h3 float-right color="light" (click)="addInTeam()">Modifier</h3>
         <p *ngIf="teamMembers.length == 0"> Votre équipe est vide</p>
       </ion-item>
       <ion-item *ngFor="let member of teamMembers">

@@ -1,11 +1,9 @@
-import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 
 import { User } from './../interfaces/user.model';
-import 'rxjs/add/operator/map';
-
 @Injectable()
 export class UserProvider {
   private _infos: User;
