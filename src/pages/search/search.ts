@@ -1,6 +1,6 @@
+import { Observable } from 'rxjs/Observable';
 import { Component } from '@angular/core';
 import { IonicPage, ViewController, App } from 'ionic-angular';
-import { FirebaseListObservable } from 'angularfire2/database';
 import { Subscription} from 'rxjs/Subscription';
 
 import { UserProvider } from './../../providers/user/user';
@@ -12,23 +12,20 @@ import { AuthProvider } from './../../providers/auth/auth';
   templateUrl: 'search.html'
 })
 export class SearchPage {
-  private _itemsList: FirebaseListObservable<any>;
+  private _itemsList: Observable<any>;
   private _loadedUsersList:Array<any>;
   private _usersList:Array<any>;
   private _disconnected: Subscription;
-  private _inSearchBar: boolean = false;
 
   constructor(public auth: AuthProvider, public myUser: UserProvider, public viewCtrl: ViewController, public appCtrl: App) {
-    let items = [];
-
     this._itemsList = myUser.getUsers();
-    this._disconnected = this._itemsList.subscribe(snapshots => {
-      snapshots.forEach(snapshot => {
+    this._disconnected = this._itemsList.subscribe(items => {
+/*      snapshots.forEach(snapshot => {
         if(snapshot.val().identity.email != myUser.infos.email) {
           items.push(snapshot.val())
           console.log(snapshot.val())
         }
-      });
+      });*/
       this._usersList = items;
       this._loadedUsersList = items;
       this.initializeItems();

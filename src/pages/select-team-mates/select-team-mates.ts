@@ -30,10 +30,7 @@ export class SelectTeamMatesPage {
   }
 
   getListOfUsers() {
-    this.users = this.myUser.getUsers().map((users) => {
-      const list_without_myUser = users.filter((user) => user.identity.user_id != this.myUser.infos.key)
-      return list_without_myUser;
-    });
+    this.users = this.myUser.getUsers();
   }
 
   isInArray(array, user) {

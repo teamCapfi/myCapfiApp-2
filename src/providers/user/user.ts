@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
@@ -68,9 +69,12 @@ export class UserProvider {
     this._infos.key = new_key;
   }
 
-  getUsers(): FirebaseListObservable<any> {
+  getUsers(): Observable<any> {
     // relative URL, uses the database url provided in bootstrap
-    return this._afD.list('/users', { preserveSnapshot: true });
+    return this._afD.list('/users').map((users) => {
+      const list_without_myUser = users.filter((user) => user.identity.user_id != this.infos.key)
+      return list_without_myUser;
+    });;
   }
 
   updateUserData(user_data: any, formerTeamMembers?: Array<any>, teamMembers?: Array<any>, newTeamMembers?: Array<any>): any {
