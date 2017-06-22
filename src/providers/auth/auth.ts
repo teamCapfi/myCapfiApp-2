@@ -1,16 +1,15 @@
+import { Platform, Events } from 'ionic-angular';
+import { Injectable, NgZone } from '@angular/core';
+import { AngularFireAuth } from 'angularfire2/auth';
+import Auth0Cordova from '@auth0/cordova';
+import Auth0 from 'auth0-js';
+import 'rxjs/add/operator/map';
+
 import { StorageProvider } from './../storage/storage';
 import { UserProvider } from './../user/user';
 import { User } from './../interfaces/user.model';
 import { eMessages } from './../../environment/events/events.messages';
-import { Platform, Events } from 'ionic-angular';
 import { auth0Vars } from './../../environment/auth0/auth0.variables';
-import { Injectable, NgZone } from '@angular/core';
-import 'rxjs/add/operator/map';
-import { AngularFireAuth } from 'angularfire2/auth';
-import Auth0Cordova from '@auth0/cordova';
-import Auth0 from 'auth0-js';
-
-
 
 declare var Auth0Lock: any;
 
@@ -36,7 +35,6 @@ const auth0Config = {
   callbackURL: location.href,
   packageIdentifier: auth0Vars.PACKAGE_ID
 };
-
 
 @Injectable()
 export class AuthProvider {
@@ -77,16 +75,16 @@ export class AuthProvider {
     return JSON.parse(window.localStorage.getItem(name));
   }
 
-  private setStorageVariable(name, data) {
+  private setStorageVariable(name, data): void {
     window.localStorage.setItem(name, JSON.stringify(data));
   }
 
-  private setIdToken(token) {
+  private setIdToken(token): void {
     this.idToken = token;
     this.setStorageVariable('id_token', token);
   }
 
-  private setAccessToken(token) {
+  private setAccessToken(token): void {
     this.accessToken = token;
     this.setStorageVariable('access_token', token);
   }
@@ -122,17 +120,16 @@ export class AuthProvider {
     }
   }
 
-  public loginForWeb() {
+  public loginForWeb(): void {
     console.log('Login For Web');
     this.lock.show();
   }
 
-  public login() {
+  public login(): void {
     this.isPlatformCordova ? this.loginForCordova() : this.loginForWeb();
   }
 
-  public loginForCordova() {
-
+  public loginForCordova(): void {
     let client = new Auth0Cordova(auth0Config);
 
     const options = {
@@ -150,8 +147,7 @@ export class AuthProvider {
       });
   }
 
-  private _auth_process(authResult: any) {
-
+  private _auth_process(authResult: any): void {
     this._delegation(authResult.idToken).then(()=>{
         this.setIdToken(authResult.idToken);
         this.setAccessToken(authResult.accessToken);
@@ -165,7 +161,6 @@ export class AuthProvider {
 
   
   private _delegation(idToken: string):Promise<any> {
-
     const options = {
       id_token: idToken,
       clientID: auth0Vars.AUTH0_CLIENT_ID,
@@ -195,7 +190,7 @@ export class AuthProvider {
 
   }
 
-  private _getUserProfile(){
+  private _getUserProfile(): void {
       this.auth0.client.userInfo(this.accessToken, (err, profile) => {
         if(err) {
           throw err;
@@ -210,7 +205,7 @@ export class AuthProvider {
   }
 
   //Create the user profile by calling the Auth0 API
-  private _setUserProfileAfterLogin(userInfo : any) {
+  private _setUserProfileAfterLogin(userInfo: any): void {
     let newUser: User = {
         name: userInfo.name,
         email: userInfo.email,
@@ -226,22 +221,22 @@ export class AuthProvider {
   }
 
 
-  public logoutEvent() {
+  public logoutEvent(): void {
     this.events.publish(eMessages.USER_LOGOUT);
   }
 
-  public loginEvent() {
+  public loginEvent(): void {
     console.log('In loginEvents');
     this.zone.run(()=>{
       this.events.publish(eMessages.USER_LOGIN);
     })
   }
 
-  public loginErrorEvent(err) {
+  public loginErrorEvent(err): void {
     this.events.publish(eMessages.USER_ERROR_LOGIN, err);
   }
 
-  private _removeStorage() {
+  private _removeStorage(): void {
     this.storage.removeLocalStorage('profile');
     this.storage.removeLocalStorage('access_token');
     this.storage.removeLocalStorage('id_token');
@@ -250,7 +245,7 @@ export class AuthProvider {
     this.accessToken = null;
   }
 
-  public logout() {
+  public logout(): void {
     this.afAuth.auth.signOut().then(() => {
       console.log("Successfully signed out");
       this._removeStorage();
@@ -258,6 +253,5 @@ export class AuthProvider {
     }).catch((err) => {
       console.log("Error when signing out", err);
     })
-
   }
 }

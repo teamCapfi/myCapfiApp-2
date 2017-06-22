@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 import { User } from './../interfaces/user.model';
+
 @Injectable()
 export class UserProvider {
   private _infos: User;
@@ -17,6 +18,7 @@ export class UserProvider {
   get infos(): User {
     return this._infos;
   }
+  
   set uid(key: string) {
     this._uid = btoa(key);
   }
@@ -49,7 +51,7 @@ export class UserProvider {
    this.uid = new_user.key;
   }
 
-  getUserData() {
+  getUserData(): void {
     this._afD.object('/users/' + this.uid).$ref.once('value').then((snapshot) => {
       let user = snapshot.val().identity;
       this._infos.email = user.email;
@@ -77,15 +79,16 @@ export class UserProvider {
 
   updateUserData(user_data: any, formerTeamMembers?: Array<any>, teamMembers?: Array<any>, newTeamMembers?: Array<any>): any {
     //Save data in user service
-          console.log(user_data);
+    console.log(user_data);
+
     this._infos.isManager = user_data.isManager;
     this._infos.phoneNumber = user_data.phoneNumber;
     this._infos.status = user_data.status;
     this._infos.jobTitle = user_data.jobTitle;
 
     this._afD.object('/users/' + this._uid + '/identity').update(user_data);
-      //Save in the storage
-      //TODO: see if there are useful data to save in storage
+    //Save in the storage
+    //TODO: see if there are useful data to save in storage
     if (this.infos.isManager) {
       if (this.teamKey === "") {
         return this.createTeam(teamMembers).catch((err) => {

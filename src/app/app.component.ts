@@ -1,10 +1,11 @@
-import { eMessages } from './../environment/events/events.messages';
-import { AuthProvider } from './../providers/auth/auth';
 import { Component, ViewChild } from '@angular/core';
-import { Platform, Events, Nav, } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import Auth0Cordova from '@auth0/cordova';
+import { Platform, Events, Nav, } from 'ionic-angular';
+
+import { eMessages } from './../environment/events/events.messages';
+import { AuthProvider } from './../providers/auth/auth';
 
 @Component({
   templateUrl: 'app.html'
@@ -27,7 +28,7 @@ export class MyApp {
       };
 
       this.listenTologinEvents();
-      this.auth.isLoggedIn() ? this.rootPage = 'HomePage' : this.rootPage = "LoginPage";
+      this.auth.isLoggedIn() ? this.rootPage = 'HomePage' : this.rootPage = 'LoginPage';
     });
   }
 

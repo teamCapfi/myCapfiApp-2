@@ -13,7 +13,7 @@ export class VisitedProfilePage {
     this._user = navParams.get('user');
   }
 
-  ionViewDidLoad() {
+  ionViewDidLoad(): void {
     console.log('ionViewDidLoad VisitedProfilePage');
   }
 }

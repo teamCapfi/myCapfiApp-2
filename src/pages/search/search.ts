@@ -1,7 +1,7 @@
-import { Observable } from 'rxjs/Observable';
 import { Component } from '@angular/core';
 import { IonicPage, ViewController, App } from 'ionic-angular';
 import { Subscription} from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 import { UserProvider } from './../../providers/user/user';
 import { AuthProvider } from './../../providers/auth/auth';

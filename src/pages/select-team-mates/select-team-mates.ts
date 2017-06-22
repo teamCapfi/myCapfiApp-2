@@ -1,9 +1,10 @@
-import { UserProvider } from './../../providers/user/user';
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController, ItemSliding } from 'ionic-angular';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/filter';
+
+import { UserProvider } from './../../providers/user/user';
 
 @IonicPage()
 @Component({
