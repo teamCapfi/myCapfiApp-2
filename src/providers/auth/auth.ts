@@ -166,7 +166,6 @@ export class AuthProvider {
     });
   }
 
-  
   private _delegation(idToken: string):Promise<any> {
 
     const options = {
@@ -194,8 +193,6 @@ export class AuthProvider {
         }
       });
     })
-
-
   }
 
   private _getUserProfile(){
@@ -211,7 +208,6 @@ export class AuthProvider {
         });
       });
   }
-
   //Create the user profile by calling the Auth0 API
   private _setUserProfileAfterLogin(userInfo : any) {
     let newUser: User = {
@@ -247,7 +243,7 @@ export class AuthProvider {
     this.storage.removeLocalStorage('profile');
     this.storage.removeLocalStorage('access_token');
     this.storage.removeLocalStorage('id_token');
-  
+
     this.idToken = null;
     this.accessToken = null;
   }
